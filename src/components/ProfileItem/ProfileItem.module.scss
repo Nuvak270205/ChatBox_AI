@@ -1,0 +1,31 @@
+.profile-item{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+
+    img{
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: 1px solid rgba($color: #000000, $alpha: 0.1);
+    }
+
+    .profile-icon{
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4px;
+        background-color: var(--color-hover);
+
+        svg {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+        }
+    }
+}

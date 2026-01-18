@@ -1,0 +1,19 @@
+.default-layout {
+    display: flex;
+    gap: 16px;
+    height: 100vh;
+    padding: 16px;
+}
+
+.default-layout .content {
+    flex: 1;
+    background-color: var(--color-background-secondary);
+    border-radius: var(--primary-border-radius);
+    overflow: hidden;
+}
+
+.default-layout .chat-box {
+    flex: 2;
+    border-radius: var(--primary-border-radius);
+    overflow: hidden;
+}

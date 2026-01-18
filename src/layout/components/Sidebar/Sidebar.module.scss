@@ -1,0 +1,30 @@
+.sidebar{
+    width: 44px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.menu{
+    flex: 1;
+    flex-shrink: 0;
+    border-bottom: 2px solid rgba($color: #000000, $alpha: 0.05);
+
+    // cuon nhung khong co thanh cuon
+    overflow: hidden;
+    overflow-y: auto;
+    scrollbar-width: none; 
+    -ms-overflow-style: none; 
+
+    &::-webkit-scrollbar {
+        display: none; 
+    }
+}
+
+.profile{
+    padding-top: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}

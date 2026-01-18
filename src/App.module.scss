@@ -1,0 +1,30 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+:root {
+    --color-background: #F5F5f5;
+    --color-hover: #e7e7e7;
+    --white: #FFFFFF;
+    --color-background-search: #f3f3f5;
+    --color-background-secondary: #FFFFFF;
+    --color-hover-account-item: #f0f0f0;
+    --color-active-account-item: #e8e8e8;
+    --primary-color: #fe2c55;
+    --primary-border-radius: 16px;
+}
+
+.App{
+    background-color: var(--color-background);
+}
+
+.tippy-box {
+  font-size: 12px; /* nhỏ hơn mặc định */
+}
+.tippy-content {
+  padding: 4px 8px;
+  max-width: 150px;
+}
