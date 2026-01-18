@@ -9,8 +9,10 @@ import ChatBox from "~/layout/components/ChatBox/ChatBox.jsx";
 
 const cx = classNames.bind(styles);
 
+
 function DefaultLayout() {
-    return ( 
+
+    return (
         <div className={cx("default-layout")}>
             <Sidebar />
             <div className={cx("content")}>
