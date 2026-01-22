@@ -4,6 +4,7 @@ import { useNavigate, useLocation, useParams  } from "react-router-dom";
 import PropTypes from "prop-types";
 import styles from "./ChatItem.module.scss";
 import Image from "../Image/index.jsx";
+import { BellOff } from "lucide-react";
 const cx = classNames.bind(styles);
 
 function ChatItem({ className, id, image, user, content, time, check, bell, imageSub, onClick, active }) {
@@ -77,11 +78,11 @@ function ChatItem({ className, id, image, user, content, time, check, bell, imag
                         <Image src={imageSub} alt={user} />
                     </div>
                 ) : (
-                    <i className={cx("icon")} data-lucide="bell-off"></i>
+                    <BellOff className={cx("icon")} />
                 )
                  : 
                 bell === false ? null : (
-                    <i className={cx("icon")} data-lucide="bell-off"></i>
+                    <BellOff className={cx("icon")} />
                 )
             }
             </div>

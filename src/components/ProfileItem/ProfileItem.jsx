@@ -1,36 +1,48 @@
 import classNames from "classnames/bind";
-import React, { useEffect} from "react";
+import React from "react";
 import PropTypes from "prop-types";
-
 import styles from "./ProfileItem.module.scss";
 
 const cx = classNames.bind(styles);
 
-function ProfileItem({ image, icon, className }) {
-
-    useEffect(() => {
-        if (window.lucide) {
-            window.lucide.createIcons();
-        }
-    }, []);
+function ProfileItem({ image, icon: Icon, name, subname, levelhigh, className, onClick, innerRef, ...rest }) {
 
   return (
-    <div className={cx("profile-item", { [className]: className })}>
+    <div
+      ref={innerRef}
+      className={cx("profile-item", { [className]: className, levelhigh })}
+      onClick={onClick}
+      {...rest}
+    >
       {image ? (
-        <img src={image} alt="profile-image" />
+          <img src={image} alt="profile-image" />
       ) : (
         <div className={cx("profile-icon")}>
-          <i data-lucide={icon} />
+          {Icon && <Icon className={cx("icon")} />}
         </div>
       )}
+      {levelhigh && (
+            <div className={cx("profile-info")}>
+              <span className={cx("profile-name")}>{name}</span>
+              <span className={cx("profile-subname")}>{subname}</span>
+            </div>
+          )}
     </div>
   );
 }
 
 ProfileItem.propTypes = {
-  image: PropTypes.string.isRequired,
-  icon: PropTypes.string.isRequired,
+  image: PropTypes.string,
+  icon: PropTypes.elementType,
   className: PropTypes.string,
+  name: PropTypes.string,
+  subname: PropTypes.string,
+  levelhigh: PropTypes.bool,
+  onClick: PropTypes.func,
+  innerRef: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.shape({ current: PropTypes.any })
+  ]),
 };
 
 export default ProfileItem;

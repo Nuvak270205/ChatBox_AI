@@ -1,19 +1,15 @@
 import classNames from "classnames/bind";
-import React, {useEffect } from "react";
+import React from "react";
 import PropTypes from "prop-types";
+import { Search as SearchChat } from "lucide-react";
 import styles from "./Search.module.scss";
 const cx = classNames.bind(styles);
 
 function Search({ className, titile, value, onChange, onFocus, onBlur, isFocused }) {
 
-    useEffect(() => {
-        if (window.lucide) {
-            window.lucide.createIcons();
-        }       
-    }, []);
     return (
         <div className={cx("search", { [className]: className, focused: isFocused })}>
-            <i className={cx("icon")} data-lucide="search"></i>
+            <SearchChat className={cx("icon")} />
             <input
                 type="text"
                 placeholder={titile || "Tìm kiếm"}

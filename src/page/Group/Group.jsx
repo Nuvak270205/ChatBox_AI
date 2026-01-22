@@ -59,7 +59,9 @@ function Group({ className }) {
         </div> 
     </div>;
 }
-export default Group;
+
 Group.propTypes = {
     className: PropTypes.string,
 };
+
+export default Group;

@@ -134,6 +134,16 @@ const arrContent = [
                     status: "Đã gửi",
                     arrUser: [1],
                     type: "normal"
+                },
+                 {
+                    id: 13,
+                    id_user: 27,
+                    user: "Maris",
+                    content: "Let's catch up sometime.",
+                    time: new Date("2025-11-11T12:36:00"),
+                    status: "Đã gửi",
+                    arrUser: [1],
+                    type: "normal"
                 }
             ]
 
@@ -534,12 +544,6 @@ const arrContent = [
     }
   ]
 
-  const menuItems = [
-    { to: "/", icon: "message-square", title: "Trò chuyện" },
-    { to: "/marketplace", icon: "house", title: "Marketplace" },
-    { to: "/msg_waiting", icon: "tv", title: "Tin nhắn đang chờ" },
-    { to: "/warehouse", icon: "store", title: "Kho hàng" },
-  ];
 
   
-export { arrContent, arrContent1, menuGroups, groupItem , menuItems };
+export { arrContent, arrContent1, menuGroups, groupItem };

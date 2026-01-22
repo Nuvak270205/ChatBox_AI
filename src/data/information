@@ -1,0 +1,93 @@
+import { ChevronRight, Pin, Circle, ThumbsUp, Image, File, BellOff, Shield, ClockFading, MessageCircleOff, Eye, CircleMinus, TriangleAlert, Lock } from "lucide-react";
+import react from "react";
+const infor = {
+    name: "Maris",
+    subname: "maris091205",
+}
+const InforItem = [
+    {
+        right_icon: ChevronRight,
+        title: 'Thông tin về đoạn chat',
+
+        children: [
+            {
+                title: 'Xem tin nhắn đã ghim',
+                left_icon: Pin
+            }
+        ]
+    },{
+        right_icon: ChevronRight,
+        title: 'Tùy chỉnh đoạn chat',
+
+        children: [
+            {
+                title: 'Thay đổi chủ đề',
+                left_icon: Circle
+            },
+            {
+                title: 'Chọn biểu tượng cảm xúc',
+                left_icon: ThumbsUp
+            },
+            {
+                title: 'Chỉnh sửa biệt danh',
+                left_icon: Circle
+            }
+        ]
+    },{
+        right_icon: ChevronRight,
+        title: 'File phương tiện & file',
+
+        children: [
+            {
+                title: 'File phương tiện',
+                left_icon: Image,
+                type: 'page'
+            },
+            {
+                title: 'File',
+                left_icon: File,
+                type: 'page'
+            }
+        ]
+    },{
+        right_icon: ChevronRight,
+        title: 'Quyền riêng tư và hỗ trợ',
+
+        children: [
+            {
+                title: 'Tắt thông báo',
+                left_icon: BellOff
+            },
+            {
+                title: 'Quyền nhắn tin',
+                left_icon: Shield
+            },
+            {
+                title: 'Tin nhắn tự hủy',
+                left_icon: ClockFading
+            },
+            {
+                title: 'Thông báo đã đọc',
+                left_icon: Eye
+            },
+            {
+                title: 'Xác minh mã hóa lần cuối',
+                left_icon: Lock
+            },
+            {
+                title: 'Hạn chế',
+                left_icon: MessageCircleOff
+            },
+            {
+                title: 'Chặn',
+                left_icon: CircleMinus
+            },
+            {
+                title: 'Báo cáo',
+                left_icon: TriangleAlert
+            }
+        ]
+    }
+]
+
+export { infor, InforItem };

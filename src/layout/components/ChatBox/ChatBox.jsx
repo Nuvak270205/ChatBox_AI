@@ -8,12 +8,13 @@ import Chat from "~/components/ChatBox/index.jsx";
 import Image from "~/components/Image/index.jsx";
 import Time  from "~/components/Time/index.jsx";
 import { arrContent, UserRoot } from "~/data";
+import { Phone, Video, Info, Mic, Image as Img, Sticker, Smile, ThumbsUp, FolderGit } from "lucide-react";
 
 import styles from "./ChatBox.module.scss";
 
 const cx = classNames.bind(styles);
 
-function ChatBox({ className }) {
+function ChatBox({ className, onClick }) {
     // biến state
     const [currentChatId, setCurrentChatId] = useState(arrContent[0]);
     const [isEmpty, setIsEmpty] = useState(true);
@@ -27,11 +28,6 @@ function ChatBox({ className }) {
     // biến online giả lập
     const onl = true;
 
-    useEffect(() => {
-        if (window.lucide) {
-            window.lucide.createIcons();
-        }
-    }, []);
     useEffect(() => {
     if (!chatId) {
         navigate(`1`, { replace: true });
@@ -60,6 +56,7 @@ function ChatBox({ className }) {
         }
     }, []);
 
+
     const handleInput = () => {
         if (!inputRef.current) return;
         const text = (inputRef.current.textContent);
@@ -87,13 +84,16 @@ function ChatBox({ className }) {
                 </div>
                 <div className={cx("header-right")}>
                     <div className={cx("icon")}>
-                        <i data-lucide="phone"></i>
+                        <Phone />
                     </div>
                     <div className={cx("icon")}>
-                        <i data-lucide="video"></i>
+                        <Video />
                     </div>
-                    <div className={cx("icon")}>
-                        <i data-lucide="info"></i>
+                    <div 
+                        className={cx("icon")}
+                        onClick={onClick}
+                    >
+                        <Info />
                     </div>
                 </div>
             </div>
@@ -119,12 +119,15 @@ function ChatBox({ className }) {
                             isTimeShow = true;
                         }
                         if (index < currentChatId.data_Message.length - 1 && currentChatId.data_Message[index + 1].id_user === item.id_user
-                            && currentChatId.data_Message[index + 1].type !== "forward" && currentChatId.data_Message[index + 1].type !== "reply"
+                            && currentChatId.data_Message[index + 1].type !== "forward" && currentChatId.data_Message[index + 1].type !== "reply" && currentChatId.data_Message[index + 1].type !== "icon"
                             && (Date.parse(currentChatId.data_Message[index + 1].time) - Date.parse(item.time) < 180000)
                         ){
                             isFirst = true;
+                            if(item.type === "icon"){
+                                isFirst = false;
+                            }
                             if(index !== 0 && currentChatId.data_Message[index - 1].id_user === item.id_user
-                                && item.type !== "forward" && item.type !== "reply"
+                                && item.type !== "forward" && item.type !== "reply" && currentChatId.data_Message[index - 1].type !== "icon"
                                 && (Date.parse(item.time) - Date.parse(currentChatId.data_Message[index - 1].time) < 180000)
                             ){
                                 isFirst = false;
@@ -133,23 +136,25 @@ function ChatBox({ className }) {
                         if (index > 0 && index < currentChatId.data_Message.length - 1 
                             && (Date.parse(currentChatId.data_Message[index + 1].time) - Date.parse(item.time) < 180000)
                             && (Date.parse(item.time) - Date.parse(currentChatId.data_Message[index - 1].time) < 180000)
-                            && item.type !== "forward" && item.type !== "reply"
+                            && item.type !== "forward"  && item.type !== "reply" && item.type !== "icon"
                         ){
                             if (currentChatId.data_Message[index - 1].id_user === item.id_user && currentChatId.data_Message[index + 1].id_user === item.id_user
                                 && currentChatId.data_Message[index + 1].type !== "forward" && currentChatId.data_Message[index + 1].type !== "reply"
+                                && currentChatId.data_Message[index + 1].type !== "icon" && currentChatId.data_Message[index - 1].type !== "icon"
                             ){
                                 isCenter = true;
                             }
                         } 
                         if (index !== 0 && currentChatId.data_Message[index - 1].id_user === item.id_user
-                            && item.type !== "forward" && item.type !== "reply"
+                            && item.type !== "forward"  && item.type !== "reply" && item.type !== "icon"
+                            && currentChatId.data_Message[index - 1].type !== "icon"
                             && (Date.parse(item.time) - Date.parse(currentChatId.data_Message[index - 1].time) < 180000)
                         ){   
                             if(index === currentChatId.data_Message.length - 1){
                                 isLast = true;
-                            } else if (index < currentChatId.data_Message.length - 1 
+                            } else if (index < currentChatId.data_Message.length - 1
                                 && (item.id_user !== currentChatId.data_Message[index + 1].id_user
-                                || currentChatId.data_Message[index + 1].type === "forward" || currentChatId.data_Message[index + 1].type === "reply"
+                                || currentChatId.data_Message[index + 1].type === "forward" || currentChatId.data_Message[index + 1].type === "reply" || currentChatId.data_Message[index + 1].type === "icon"
                                 || (Date.parse(currentChatId.data_Message[index + 1].time) - Date.parse(item.time) >= 180000)
                                 )){
                                 isLast = true;
@@ -190,7 +195,7 @@ function ChatBox({ className }) {
                         interactive={true}
                     >
                         <div className={cx("icon")}>
-                            <i data-lucide="mic"></i>
+                            <Mic />
                         </div>
                     </Tippy>
                     <Tippy
@@ -200,7 +205,7 @@ function ChatBox({ className }) {
                         interactive={true}
                     >
                         <div className={cx("icon")}>
-                            <i data-lucide="image"></i>
+                            <Img />
                         </div>
                     </Tippy>
                     <Tippy
@@ -210,7 +215,7 @@ function ChatBox({ className }) {
                         interactive={true}
                     >
                         <div className={cx("icon")}>
-                            <i data-lucide="sticker"></i>
+                            <Sticker />
                         </div>
                     </Tippy>
                     <Tippy
@@ -220,7 +225,7 @@ function ChatBox({ className }) {
                         interactive={true}
                     >
                         <div className={cx("icon")}>
-                            <i data-lucide="folder-git"></i>
+                            <FolderGit />
                         </div>
                     </Tippy>
                 </div>
@@ -241,13 +246,13 @@ function ChatBox({ className }) {
                         interactive={true}
                     >
                         <div className={cx("icon")}>
-                            <i data-lucide="smile"></i>
+                            <Smile />
                         </div>
                     </Tippy>
                 </div>
                 <div className={cx("footer-actions")}>
                     <div className={cx("icon")}>
-                            <i data-lucide="thumbs-up"></i>
+                            <ThumbsUp />
                         </div>
                 </div>
             </div>
@@ -255,8 +260,9 @@ function ChatBox({ className }) {
     );
 }
 
-export default ChatBox;
-
 ChatBox.propTypes = {
     className: PropTypes.string,
+    onClick: PropTypes.func,
 };
+
+export default ChatBox;

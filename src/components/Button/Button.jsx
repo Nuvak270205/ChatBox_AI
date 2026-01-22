@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import styles from './Button.module.scss';
-import { useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
@@ -20,15 +20,10 @@ function Button({
     disablesd = false,
     rounder = false,
     className,
-    leftIcon,
-    rightIcon,
+    leftIcon: LeftIcon,
+    rightIcon: RightIcon,
     ...passProps
 }) {
-    useEffect(() => {
-        if (window.lucide) {
-            window.lucide.createIcons();
-        }
-    }, []);
     const props = {
         onClick,
         ...passProps
@@ -56,17 +51,19 @@ function Button({
         text,
         disablesd,
         rounder,
+        LeftIcon,
+        RightIcon,
         [className]: className
     });
     
     return ( 
         <Conponent className={classes} {...props} onClick={onClick}>
-            {leftIcon && (<span className={cx('icon')}>
-               <i data-lucide={leftIcon}></i>
+            {LeftIcon && (<span className={cx('icon')}>
+               <LeftIcon />
             </span>)}
             <span className={cx('title')}>{children}</span>
-            {rightIcon && (<span className={cx('icon')}>
-                <i data-lucide={rightIcon}></i>
+            {RightIcon && (<span className={cx('icon')}>
+                <RightIcon />
             </span>)}
         </Conponent>
      );
@@ -85,8 +82,8 @@ Button.propTypes = {
     disablesd: PropTypes.bool,
     rounder: PropTypes.bool,
     className: PropTypes.string,
-    leftIcon: PropTypes.string,
-    rightIcon: PropTypes.string,
+    leftIcon: PropTypes.elementType,
+    rightIcon: PropTypes.elementType,
     passProps: PropTypes.object,
 }
 export default Button;

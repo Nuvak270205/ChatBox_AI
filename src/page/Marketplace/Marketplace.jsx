@@ -58,7 +58,9 @@ function Marketplace({ className }) {
         </div> 
     </div>;
 }
-export default Marketplace;
+
 Marketplace.propTypes = {
     className: PropTypes.string,
 };
+
+export default Marketplace;

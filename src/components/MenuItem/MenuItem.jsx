@@ -9,14 +9,8 @@ import styles from "./MenuItem.module.scss";
 
 const cx = classNames.bind(styles);
 
-function MenuItem({ icon, image, className, to, active = false, onClick, title, line, name }) {
+function MenuItem({ icon : Icon, image, className, to, active = false, onClick, title, line, levelhigh }) {
     const go = useNavigateWithChatId();
-
-    useEffect(() => {
-        if (window.lucide) {
-            window.lucide.createIcons();
-        }
-    }, []);
 
     const handleClick = () => {
         if (to) go(to); 
@@ -29,14 +23,48 @@ function MenuItem({ icon, image, className, to, active = false, onClick, title, 
                 onClick={handleClick}
                 className={cx("menu-item", {
                     [className]: className,
-                    active: active
+                    active: active,
+                    levelhigh
                 })}
             >
                 <div className={cx("link__line")}>
-                    <span className={cx("line")}></span>
+                    {levelhigh ? (
+                        <span className={cx("line-high")}>{title}</span>
+                    ) : (
+                        <span className={cx("line")}></span>
+                    )}
                 </div>
+
             </div>
         ) : (
+            levelhigh ? (
+                <div
+                onClick={handleClick}
+                className={cx("menu-item", {
+                    [className]: className,
+                    active: active,
+                    levelhigh: levelhigh,
+                })}
+            >
+                {(Icon || image) ? 
+                    Icon ? (
+                        <div className={cx("link__icon")}>
+                            {Icon && <Icon className={cx("icon")}></Icon>}
+                        </div>
+                    ) : (
+                        <div className={cx("link__img")}>
+                            {image && <Image className={cx("img")} src={image} alt="menu-image" />}
+                        </div>
+                    )
+                    :
+                    null
+                }
+                <div className={cx("link__title")}>
+                    {title}
+                </div>
+            </div>
+            )
+            :(
         <Tippy
             content={title}
             placement="right"
@@ -51,10 +79,10 @@ function MenuItem({ icon, image, className, to, active = false, onClick, title, 
                     name: name
                 })}
             >
-                {(icon || image) ? 
-                    icon ? (
+                {(Icon || image) ? 
+                    Icon ? (
                         <div className={cx("link__icon")}>
-                            {icon && <i className={cx("icon")} data-lucide={icon}></i>}
+                            {Icon && <Icon className={cx("icon")}></Icon>}
                         </div>
                     ) : (
                         <div className={cx("link__img")}>
@@ -64,24 +92,22 @@ function MenuItem({ icon, image, className, to, active = false, onClick, title, 
                     :
                     null
                 }
-                {
-                    name && <div className={cx("name")}>{name}</div>
-                }
             </div>
-        </Tippy>
+        </Tippy>)
         )
     );
 }
 
 MenuItem.propTypes = {
-    icon: PropTypes.string,
+    icon: PropTypes.elementType,
     className: PropTypes.string,
     to: PropTypes.string,
     onClick: PropTypes.func,
     image: PropTypes.string,
     title: PropTypes.string,
     active: PropTypes.bool,
-    name: PropTypes.string,
+    line: PropTypes.bool,
+    levelhigh: PropTypes.bool,
 };
 
 export default MenuItem;

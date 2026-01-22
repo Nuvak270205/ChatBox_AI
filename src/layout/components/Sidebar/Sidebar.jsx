@@ -1,16 +1,21 @@
 import classNames from "classnames/bind";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import PropTypes from "prop-types";
-import { menuGroups, menuItems } from "~/data";
+import { menuGroups, menuItems, userMenu } from "~/data";
 import MenuItem from "~/components/MenuItem/index.jsx";
-import ProfileItem from "~/components/ProfileItem/index.jsx";
+import {ProfileItem, ProfileItemWithRef} from "~/components/ProfileItem/index.jsx";
+import Menu from '~/components/Poper/Menu/index.jsx';
+import { PanelLeftClose } from "lucide-react";
 import styles from "./Sidebar.module.scss";
 
 const cx = classNames.bind(styles);
 
 function Sidebar({ className }) {
   const [activeIndexMenu, setActiveIndexMenu] = useState(0);
+  const [show, setShow] = useState(false);
+  const [levelhigh, setLevelhigh] = useState(false);
   const [activeIndexGroup, setActiveIndexGroup] = useState(-1);
+  const profileRef = useRef(null);
 
   useEffect(() => {
     function handleBorder(){
@@ -36,9 +41,12 @@ function Sidebar({ className }) {
     };
   }, [])
 
+  const handClickLevelHigh = useCallback(() => {
+    setLevelhigh((prev) => !prev);
+  }, []);
 
   return (
-    <div className={cx("sidebar", { [className]: className })}>
+    <div className={cx("sidebar", { [className]: className, levelhigh: levelhigh })}>
       <div className={cx("menu")}>
         {menuItems.map((item, index) => (
         <MenuItem
@@ -51,9 +59,10 @@ function Sidebar({ className }) {
             setActiveIndexGroup(-1);
           }}
           title={item.title}
+          levelhigh={levelhigh}
         />
         ))}
-        <MenuItem line/>
+        <MenuItem line title={"cộng đồng"} levelhigh={levelhigh}/>
         {menuGroups.map((item, index) => (
           <MenuItem
             key={index}
@@ -65,16 +74,32 @@ function Sidebar({ className }) {
               setActiveIndexMenu(-1);
             }}
             title={item.title}
+            levelhigh={levelhigh}
           />
         ))}
       </div>
-      <div className={cx("profile")}>
+      <div className={cx("profile", { levelhigh: levelhigh })}>
+        <Menu
+          item={userMenu}
+          onClick={() => setShow(!show)}
+          show={show}
+          onBack={() => {
+            setShow(false);
+          }}
+        >
+          <ProfileItemWithRef
+            innerRef={profileRef}
+            image="https://res.cloudinary.com/dpnza0kof/image/upload/v1761197706/vtdgumwes11xmnsxgt1u.jpg"
+            icon="user"
+            onClick={() => setShow(!show)}
+            name="Marissa Nguyen"
+            subname="marissa.nguyen090978"
+            levelhigh={levelhigh}
+          />
+        </Menu>
         <ProfileItem
-          image="https://res.cloudinary.com/dpnza0kof/image/upload/v1761197706/vtdgumwes11xmnsxgt1u.jpg"
-          icon="user"
-        />
-        <ProfileItem
-          icon="panel-left-close"
+          icon={PanelLeftClose}
+          onClick={handClickLevelHigh}
         />
       </div>
     </div>

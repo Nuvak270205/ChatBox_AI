@@ -6,7 +6,6 @@ const publicRoutes = {
     group: '/group/:idGroup/:chatId?',
     login : '/login',
     register : '/register'
-    
 }
 
 const privateRoutes = {
