@@ -3,6 +3,10 @@
     height: 100%;
     display: flex;
     flex-direction: column;
+
+    &.levelhigh{
+        width: 240px;
+    }
 }
 
 .menu{
@@ -22,9 +26,17 @@
 }
 
 .profile{
+    width: 100%;
     padding-top: 12px;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 12px;
+
+    &.levelhigh{
+        flex-direction: row;
+        justify-content: space-between;
+        gap: 8px;
+        
+    }
 }

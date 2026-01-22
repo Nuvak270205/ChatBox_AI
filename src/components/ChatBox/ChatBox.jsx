@@ -4,6 +4,7 @@ import Tippy from "@tippyjs/react";
 import Image from '~/components/Image/index.jsx';
 import 'tippy.js/dist/tippy.css';
 import PropTypes from 'prop-types';
+import {ArrowDownRight, ArrowUpLeft, EllipsisVertical, Laugh, MessageSquareShare} from 'lucide-react';
 import styles from './ChatBox.module.scss';
 const cx = classNames.bind(styles);
 function ChatBox({ className, time, name, content, arrUser = [], status = null, left, right, first, center, last, image, rep, rep_name, rep_content, forward, group }) {
@@ -28,11 +29,7 @@ function ChatBox({ className, time, name, content, arrUser = [], status = null, 
 
         return `${timeStr} ${date.toLocaleDateString("vi-VN")}`;
     }, [time]);
-    useEffect(() => {
-        if (window.lucide) {
-            window.lucide.createIcons();
-        }
-    }, []);
+    
     return (
         <div className={cx('chat-box', { 
             [className]: className,
@@ -48,12 +45,12 @@ function ChatBox({ className, time, name, content, arrUser = [], status = null, 
                         <div className={cx('name')}>
                             {rep ? (
                                 <>
-                                    <i data-lucide="arrow-down-right"></i>
+                                    <ArrowDownRight />
                                     {` ${name} đã trả lời tin nhắn của ${rep_name}`}
                                 </>
                             ) : forward ? (
                                 <>
-                                    <i data-lucide="arrow-up-left"></i>
+                                    <ArrowUpLeft />
                                     {`${name} đã chuyển tiếp tin nhắn`}
                                 </>
                             ) : (
@@ -66,8 +63,8 @@ function ChatBox({ className, time, name, content, arrUser = [], status = null, 
                    forward || rep ?
                         <div className={cx('info')}>
                             <div className={cx('name', {rep, forward})}>{
-                                rep ? <><i data-lucide="arrow-down-right"></i>   {`Ban đã trả lời tin nhắn của ${rep_name}`}</> :
-                                forward ? <><i data-lucide="arrow-up-left"></i>   {` ${name} đã chuyển tiếp tin nhắn`}</> :
+                                rep ? <><ArrowDownRight />   {`Ban đã trả lời tin nhắn của ${rep_name}`}</> :
+                                forward ? <><ArrowUpLeft />   {` ${name} đã chuyển tiếp tin nhắn`}</> :
                                 name
                             }</div>
                         </div>
@@ -108,7 +105,7 @@ function ChatBox({ className, time, name, content, arrUser = [], status = null, 
                         interactive={true}
                     >
                         <div className={cx('icon')}>
-                            <i data-lucide="ellipsis-vertical"></i>
+                            <EllipsisVertical />
                         </div>
                     </Tippy>
                     <Tippy
@@ -118,7 +115,7 @@ function ChatBox({ className, time, name, content, arrUser = [], status = null, 
                         interactive={true}
                     >
                         <div className={cx('icon')}>
-                            <i data-lucide="laugh"></i>
+                            <Laugh />
                         </div>
                     </Tippy>
                     <Tippy
@@ -128,7 +125,7 @@ function ChatBox({ className, time, name, content, arrUser = [], status = null, 
                         interactive={true}
                     >
                         <div className={cx('icon')}>
-                            <i data-lucide="message-square-share"></i>
+                            <MessageSquareShare />
                         </div>
                     </Tippy>
                 </div>

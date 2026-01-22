@@ -17,3 +17,9 @@
     border-radius: var(--primary-border-radius);
     overflow: hidden;
 }
+
+.default-layout .information {
+    flex: 1;
+    background-color: var(--color-background-secondary);
+    border-radius: var(--primary-border-radius);
+}

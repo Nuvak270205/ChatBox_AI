@@ -55,7 +55,9 @@ function Warehouse({ className }) {
         </div> 
     </div>;
 }
-export default Warehouse;
+
 Warehouse.propTypes = {
     className: PropTypes.string,
 };
+
+export default Warehouse;

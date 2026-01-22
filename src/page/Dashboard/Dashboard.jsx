@@ -2,10 +2,11 @@ import classNames from "classnames/bind";
 import React, { useEffect, useState } from "react";
 import {useParams} from "react-router-dom";
 import PropTypes from "prop-types";
-import ProfileItem  from "~/components/ProfileItem/index.jsx";
+import {ProfileItem}  from "~/components/ProfileItem/index.jsx";
 import Search from "~/components/Search/index.jsx";
 import ChatItem from "~/components/ChatItem/index.jsx";
 import { arrContent } from "~/data";
+import { Pencil } from "lucide-react";
 import styles from "./Dasboard.module.scss";
 
 const cx = classNames.bind(styles);
@@ -40,7 +41,7 @@ function Dashboard({ className }) {
             <div className={cx("header-title")}>
                 Đoạn Chat
             </div>
-            <ProfileItem icon={"pencil"} className={cx("header-icon")}/>
+            <ProfileItem icon={Pencil} className={cx("header-icon")}/>
         </div>
         <div className={cx("search-bar")}>
             <Search 
@@ -74,7 +75,9 @@ function Dashboard({ className }) {
         </div> 
     </div>;
 }
-export default Dashboard;
+
 Dashboard.propTypes = {
    className: PropTypes.string
 };
+
+export default Dashboard;

@@ -1,10 +1,11 @@
 import classNames from "classnames/bind";
 import {useParams} from "react-router-dom";
 import React, { useEffect, useState } from "react";
-import ProfileItem  from "~/components/ProfileItem/index.jsx";
+import {ProfileItem}  from "~/components/ProfileItem/index.jsx";
 import ChatItem from "~/components/ChatItem/index.jsx";
 import PropTypes from "prop-types";
 import { arrContent, arrContent1 } from "~/data";
+import { Pencil } from "lucide-react";
 import styles from "./Mgs_waiting.module.scss";
 
 const cx = classNames.bind(styles);
@@ -35,7 +36,7 @@ function Mgs_waiting({ className }) {
             <div className={cx("header-title")}>
                 Tin nhắn đang chờ
             </div>
-            <ProfileItem icon={"pencil"} className={cx("header-icon")}/>
+            <ProfileItem icon={Pencil} className={cx("header-icon")}/>
         </div>
         <div className={cx("sidebar-nav")}>
             <div 
@@ -93,7 +94,9 @@ function Mgs_waiting({ className }) {
         </div> 
     </div>;
 }
-export default Mgs_waiting;
+
 Mgs_waiting.propTypes = {
     className: PropTypes.string,
 };
+
+export default Mgs_waiting;

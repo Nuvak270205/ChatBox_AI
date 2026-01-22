@@ -1,5 +1,5 @@
 .menu-items{
-    width: 224px;
+    width: 280px;
 
     .menu-item{
         margin-left: 0;
@@ -21,9 +21,6 @@
     border-radius: 0;
     line-height: 18px;
 
-    &:hover{
-        background-color: rgba(22, 24, 35, 0.03);
-    }
     &.separate{
         border-top: 1px solid rgba(22, 24, 35, 0.1);
     }
@@ -45,8 +42,25 @@
     transform: translate(-50%, -50%);
 }
 .back-btn{
-    width: 50px;
-    height: 100%;
+    position: absolute;
+    width: 30px;
+    height: 30px;
     background-color: transparent;
     cursor: pointer;
+    outline: none;
+    border: none;
+    top: 50%;
+    left: 8px;
+    transform: translateY(-50%);
+
+    svg{
+        width: 18px;
+        height: 18px;
+        color: var(--color-text-primary);
+    }
+
+    &:hover{
+        background-color: rgba($color: #000000, $alpha: 0.05);
+        border-radius: 50%;
+    }
 }

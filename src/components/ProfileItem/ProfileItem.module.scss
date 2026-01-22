@@ -1,9 +1,25 @@
 .profile-item{
-    width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
+
+    &.levelhigh{
+        padding: 4px;
+        flex: 1;
+        min-width: 0;
+        justify-content: flex-start;
+
+        &:hover{
+            background-color: var(--color-hover-dark);
+            border-radius: 8px;
+        }
+    }
+
+    &:hover .profile-icon{
+        background-color: var(--color-hover-dark);
+        border-radius: 50%;
+    }
 
     img{
         width: 32px;
@@ -20,12 +36,37 @@
         align-items: center;
         justify-content: center;
         padding: 4px;
-        background-color: var(--color-hover);
+        background-color: rgba($color: #000000, $alpha: 0.05);
 
         svg {
             width: 20px;
             height: 20px;
             object-fit: contain;
+        }
+    }
+    .profile-info{
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        margin-left: 8px;
+
+        .profile-name{
+            font-size: 14px;
+            font-weight: 600;
+            color: black;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .profile-subname{
+            font-size: 12px;
+            font-weight: 400;
+            color: rgba($color: #000000, $alpha: 0.6);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
     }
 }

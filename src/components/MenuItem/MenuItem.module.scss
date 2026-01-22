@@ -14,49 +14,63 @@
         }
     }
 
-    .name{
-        flex: 1;
-        font-size: 16px;
-        font-weight: 500;
-        color: black;
-        flex-grow: 0;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+    &.levelhigh{
+        justify-content: flex-start;
+
+        .link__line{
+            justify-content: flex-start;
+            padding: 8px 12px;
+        }
+
     }
 
     .link__icon{
         width: 100%;
+        max-width: 44px;
         display: flex;
         align-items: center;
         justify-content: center;
+        flex-grow: 0;
         padding: 8px;
 
         svg{
-        width: 28px;
-        height: 28px;
-        padding: 4px;
-        color: rgba($color: #000000, $alpha: 0.7);
+            width: 28px;
+            height: 28px;
+            padding: 4px;
+            color: rgba($color: #000000, $alpha: 0.7);
         }
     }
 
     .link__line{
         width: 100%;
         display: flex;
+        padding: 21px 8px;
         align-items: center;
         justify-content: center;
-        padding: 21px 8px;
         pointer-events: none;
 
         .line{
             width: 100%;
             height: 1px;
             background-color: rgba($color: #000000, $alpha: 0.1);
+
         }
+
+        .line-high{
+            font-size: 14px;
+            font-weight: 500;
+            padding: 8px 0;
+            color: rgba($color: #000000, $alpha: 0.6);
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+
     }
 
     .link__img{
         width: 100%;
+        max-width: 44px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -67,6 +81,16 @@
             height: 28px;
             border-radius: 8px;
         }
+    }
+    .link__title{
+        flex: 1;
+        min-width: 0;
+        font-size: 16px;
+        font-weight: 500;
+        color: black;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
 }
