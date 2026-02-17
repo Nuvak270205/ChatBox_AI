@@ -40,6 +40,13 @@
             border-radius: 50%;
             overflow: hidden;
             margin-right: 10px;
+            align-self: flex-end;
+        }
+
+        &.Icon{
+            .avatar{
+                margin-bottom: 8px;
+            }
         }
 
         .box{
@@ -132,6 +139,15 @@
             background-color: #f8f8f8;
             color: gray;
         }
+
+        svg{
+            color: white;
+            fill: #0084ff;
+
+            &.right{
+                transform : scaleX(-1);
+            }
+        }
     }
 
     &.left{
@@ -166,6 +182,18 @@
                 border-top-right-radius: 18px;
                 border-bottom-right-radius: 18px;
                 border-bottom-left-radius: 18px;
+            }
+        }
+
+        .Icon{
+            background-color: transparent;
+            padding: 0;
+
+            svg{
+                width: 60px;
+                height: 60px;
+                fill: #0084ff;
+                color: white
             }
         }
 
@@ -209,6 +237,20 @@
                 border-bottom-right-radius: 18px;
                 border-bottom-left-radius: 18px;
             }
+
+            &.Icon{
+                background-color: transparent;
+                padding: 0;
+
+                svg{
+                    width: 60px;
+                    height: 60px;
+                    fill: #0084ff;
+                    color: white;
+                    transform: scaleX(-1);
+                }
+            }
+
         }
     }
 

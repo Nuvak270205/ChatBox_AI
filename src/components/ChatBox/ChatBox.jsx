@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import {ArrowDownRight, ArrowUpLeft, EllipsisVertical, Laugh, MessageSquareShare} from 'lucide-react';
 import styles from './ChatBox.module.scss';
 const cx = classNames.bind(styles);
-function ChatBox({ className, time, name, content, arrUser = [], status = null, left, right, first, center, last, image, rep, rep_name, rep_content, forward, group }) {
+function ChatBox({ className, time, name, content, arrUser = [], status = null, left, right, first, center, last, image, rep, rep_name, rep_content, Rep_Icon, forward, group, Icon }) {
     const formattedTime = useMemo(() => {
         if (!time) return "";
 
@@ -40,7 +40,7 @@ function ChatBox({ className, time, name, content, arrUser = [], status = null, 
             last
          })}>
             <div className={cx('chat-header')}>
-                {left && (group || rep || forward) && (first || rep || forward) && (
+                {left && (group || rep || forward) && (Icon || first || rep || forward) && (
                     <div className={cx('info')}>
                         <div className={cx('name')}>
                             {rep ? (
@@ -76,12 +76,12 @@ function ChatBox({ className, time, name, content, arrUser = [], status = null, 
                 rep ?
                     (<div className={cx('reply')}>
                         <div className={cx('reply-box')}>
-                            {rep_content}
+                            {rep_content ? rep_content : <Rep_Icon className={cx({right})} />}
                         </div>
                     </div>)
                 : null
             }
-            <div className={cx('chat-content')}>
+            <div className={cx('chat-content', { Icon })}>
                 {
                     left ?
                         !center && !first ?
@@ -135,8 +135,8 @@ function ChatBox({ className, time, name, content, arrUser = [], status = null, 
                     delay={[300, 0]}
                     interactive={true}
                 >
-                    <div className={cx('text', { first, center, last, forward })}>{
-                        content
+                    <div className={cx('text', { first, center, last, forward, Icon })}>{
+                        Icon ? <Icon /> : content
                     }</div>
                 </Tippy>
             </div>
@@ -175,8 +175,11 @@ ChatBox.propTypes = {
     name: PropTypes.string,
     rep: PropTypes.bool,
     rep_name: PropTypes.string,
+    rep_content: PropTypes.string,
+    Rep_Icon: PropTypes.elementType,
     group: PropTypes.bool,
     forward: PropTypes.bool,
+    Icon: PropTypes.elementType,
 };
 
 export default ChatBox;

@@ -134,6 +134,7 @@
         width: 100%;
         padding: 12px 12px;
         position: sticky;
+        z-index: 100;
         bottom: 0;
         left: 0;
         gap: 12px;
@@ -169,7 +170,6 @@
                 resize: none;
                 background: transparent;
                 white-space: pre-wrap; 
-                word-wrap: break-word; 
                 overflow-wrap: break-word; 
                 overflow-y: auto;
                 max-width: 100%;
@@ -184,6 +184,14 @@
                 left: 12px;
                 top: 50%;
                 transform: translateY(-62%);
+            }
+            .emoji-picker{
+                position: absolute;
+                bottom: 56px;
+                right: 24px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                border-radius: 8px;
+                z-index: 9999;
             }
         }
         .footer-actions{
@@ -205,6 +213,7 @@
                 width: 20px;
                 height: 20px;
             }
+
         }
 
         .icon:hover{

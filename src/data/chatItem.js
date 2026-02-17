@@ -1,4 +1,4 @@
-
+import {ThumbsUp} from 'lucide-react';
 const arrContent = [
         {
             id: 1,
@@ -67,11 +67,12 @@ const arrContent = [
                     id: 6,
                     id_user: 27,
                     user: "Maris",
-                    content: "I'm fine, thank you!",
+                    // content: "I'm fine, thank you!",
+                    Icon: ThumbsUp,
                     time: new Date("2025-11-11T10:32:00"),
                     status: "Đã gửi",
                     arrUser: [1],
-                    type: "normal"
+                    type: "icon"
                 },
                 {
                     id: 7,
