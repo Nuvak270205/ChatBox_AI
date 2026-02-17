@@ -9,6 +9,7 @@ import Image from "~/components/Image/index.jsx";
 import Time  from "~/components/Time/index.jsx";
 import { arrContent, UserRoot } from "~/data";
 import { Phone, Video, Info, Mic, Image as Img, Sticker, Smile, ThumbsUp, FolderGit } from "lucide-react";
+import EmojiPicker from "emoji-picker-react";
 
 import styles from "./ChatBox.module.scss";
 
@@ -18,6 +19,7 @@ function ChatBox({ className, onClick }) {
     // biến state
     const [currentChatId, setCurrentChatId] = useState(arrContent[0]);
     const [isEmpty, setIsEmpty] = useState(true);
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     // biến router
     const { chatId } = useParams();
     const navigate = useNavigate();
@@ -25,8 +27,30 @@ function ChatBox({ className, onClick }) {
     //biến ref
     const inputRef = useRef(null);
     const bodyRef = useRef(null);
+    const emojiPickerRef = useRef(null);
     // biến online giả lập
     const onl = true;
+
+    //ham xử lý
+    const hanldeShowEmojiPicker = () => {
+        setShowEmojiPicker(!showEmojiPicker);
+    }
+
+    const handleEmojiClick = (emojiData, e) => {
+        if (inputRef.current) {
+            const emoji = emojiData.emoji;
+            inputRef.current.textContent += emoji;
+            setShowEmojiPicker(false);
+            handleInput();
+            inputRef.current.focus();
+        }
+    }
+
+    const handleInput = () => {
+        if (!inputRef.current) return;
+        const text = (inputRef.current.textContent);
+        setIsEmpty(text.length === 0);
+    };
 
     useEffect(() => {
     if (!chatId) {
@@ -49,6 +73,36 @@ function ChatBox({ className, onClick }) {
         }
     });
 
+    useEffect(() =>{
+        const handleClickOutside = (e) =>{
+            if(emojiPickerRef.current.contains(e.target)){
+                hanldeShowEmojiPicker();
+            } else {
+                setShowEmojiPicker(false);
+            }
+        }
+        if(emojiPickerRef.current){
+            document.addEventListener("click", handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener("click", handleClickOutside);
+        }
+    }, [])
+
+    useEffect(() => {
+        if(inputRef.current){
+            inputRef.current.focus();
+            const range = document.createRange();
+            range.selectNodeContents(inputRef.current);
+            range.collapse(false);
+
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);        
+        }
+    }, [showEmojiPicker]);
+
     useEffect(() => {
         if (inputRef.current) {
             const text = (inputRef.current.textContent);
@@ -56,12 +110,6 @@ function ChatBox({ className, onClick }) {
         }
     }, []);
 
-
-    const handleInput = () => {
-        if (!inputRef.current) return;
-        const text = (inputRef.current.textContent);
-        setIsEmpty(text.length === 0);
-    };
 
     return (
         <div className={cx("chat-box", { [className]: className })}>
@@ -178,8 +226,10 @@ function ChatBox({ className, onClick }) {
                                 rep={item.type === "reply" ? true : false}
                                 rep_name={item.type === "reply" ? (currentChatId.data_Message.find(msg => msg.id === item.rep)?.id_user === UserRoot.id ? item.id_user === UserRoot.id ? "chính mình" : "bạn" : currentChatId.data_Message.find(msg => msg.id === item.rep)?.user) : ""}
                                 rep_content={item.type === "reply" ? currentChatId.data_Message.find(msg => msg.id === item.rep)?.content : ""}
+                                Rep_Icon={item.type === "reply" ? currentChatId.data_Message.find(msg => msg.id === item.rep)?.Icon : null}
                                 forward={item.type === "forward" ? true : false}
                                 group={isGroup}
+                                Icon={item.type === "icon" ? item.Icon : null}
                                 />
                             </div>
                         )
@@ -245,10 +295,13 @@ function ChatBox({ className, onClick }) {
                         delay={[300, 0]}
                         interactive={true}
                     >
-                        <div className={cx("icon")}>
+                        <div ref={emojiPickerRef} className={cx("icon")}>
                             <Smile />
                         </div>
                     </Tippy>
+                    {
+                        showEmojiPicker && <EmojiPicker onEmojiClick={handleEmojiClick} className={cx("emoji-picker")} />
+                    }
                 </div>
                 <div className={cx("footer-actions")}>
                     <div className={cx("icon")}>
