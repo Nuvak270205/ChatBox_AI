@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import {ArrowDownRight, ArrowUpLeft, EllipsisVertical, Laugh, MessageSquareShare} from 'lucide-react';
 import styles from './ChatBox.module.scss';
 const cx = classNames.bind(styles);
-function ChatBox({ className, time, name, content, arrUser = [], status = null, left, right, first, center, last, image, rep, rep_name, rep_content, Rep_Icon, forward, group, Icon }) {
+function ChatBox({ className, time, name, content, arrUser = [], status = null, left, normal, right, first, center, last, image, rep, rep_name, rep_content, Rep_Icon, forward, group, Icon }) {
     const formattedTime = useMemo(() => {
         if (!time) return "";
 
@@ -40,7 +40,7 @@ function ChatBox({ className, time, name, content, arrUser = [], status = null, 
             last
          })}>
             <div className={cx('chat-header')}>
-                {left && (group || rep || forward) && (Icon || first || rep || forward) && (
+                {left && (group || rep || forward) && (Icon || first || rep || forward || normal) && (
                     <div className={cx('info')}>
                         <div className={cx('name')}>
                             {rep ? (
@@ -168,6 +168,7 @@ ChatBox.propTypes = {
     status: PropTypes.string,
     left: PropTypes.bool,
     right: PropTypes.bool,
+    normal: PropTypes.bool,
     first: PropTypes.bool,
     center: PropTypes.bool,
     last: PropTypes.bool,

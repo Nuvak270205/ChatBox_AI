@@ -1,5 +1,5 @@
 import classNames from "classnames/bind";
-import React, { useEffect, useState, useRef} from "react";
+import React, { useEffect, useState, useRef, use} from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import PropTypes from "prop-types";
 import Tippy from "@tippyjs/react";
@@ -17,9 +17,10 @@ const cx = classNames.bind(styles);
 
 function ChatBox({ className, onClick }) {
     // biến state
-    const [currentChatId, setCurrentChatId] = useState(arrContent[0]);
+    const [currentChatId, setCurrentChatId] = useState();
     const [isEmpty, setIsEmpty] = useState(true);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const [loading, setLoading] = useState(true);
     // biến router
     const { chatId } = useParams();
     const navigate = useNavigate();
@@ -28,6 +29,7 @@ function ChatBox({ className, onClick }) {
     const inputRef = useRef(null);
     const bodyRef = useRef(null);
     const emojiPickerRef = useRef(null);
+    const inputFileRef = useRef(null);
     // biến online giả lập
     const onl = true;
 
@@ -58,7 +60,8 @@ function ChatBox({ className, onClick }) {
     }
     }, [chatId, location.pathname, navigate]);
     useEffect(() => {
-        setCurrentChatId(arrContent[0]);
+        setCurrentChatId(arrContent.find((item) => item.id === parseInt(chatId)));
+        setLoading(false);  
     }, [chatId]);
 
     useEffect(() => {
@@ -110,15 +113,17 @@ function ChatBox({ className, onClick }) {
         }
     }, []);
 
+    if (loading) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <div className={cx("chat-box", { [className]: className })}>
             <div className={cx("header")}>
                 <div className={cx("header-left")}>
                     <div className={cx("header-image")}>
-                        <Image src={currentChatId.image} alt={currentChatId.user} />
+                        <Image src={currentChatId?.images[0]} alt={currentChatId.user} />
                     </div>
-
                     <div className={cx("header-title")}>
                         <div className={cx("header-user")}>{currentChatId.user}</div>
                         {
@@ -148,7 +153,7 @@ function ChatBox({ className, onClick }) {
             <div ref={bodyRef} className={cx("body")}>
                 <div className={cx("body-overview")}>
                     <div className={cx("body-image")}>
-                        <Image src={currentChatId.image} alt={currentChatId.user} />
+                        <Image src={currentChatId.images[0]} alt={currentChatId.user} />
                     </div>
                     <div className={cx("body-user")}>{currentChatId.user}</div>
                     <div className={cx("body-status")}>Tin nhắn và cuộc gọi được bảo mật bằng tính năng mã hóa đầu cuối. Chỉ những người tham gia đoạn chat này mới có thể đọc, nghe hoặc chia sẻ. </div>
@@ -160,6 +165,7 @@ function ChatBox({ className, onClick }) {
                         let isFirst = false;
                         let isCenter = false;
                         let isLast = false;
+                        let isNormal = false;
                         let isGroup = currentChatId.arr_user.length > 2 ? true : false;
                         if (index === 0){
                             isTimeShow = true;
@@ -208,21 +214,25 @@ function ChatBox({ className, onClick }) {
                                 isLast = true;
                             }
                         }
+                        if (!isFirst && !isCenter && !isLast){
+                            isNormal = true;
+                        }
                         return (
                             <div key={index}>
                                 {isTimeShow && <Time date={item.time} />}
                                 <Chat
                                 content={item.content}
                                 time={item.time}
-                                arrUser={isCurrentUser ? [currentChatId.image] : []}
+                                arrUser={isCurrentUser ? currentChatId.images : []}
                                 status={isCurrentUser ? item.status : null}
                                 left={item.id_user !== UserRoot.id ? true : false}
                                 right={item.id_user === UserRoot.id ? true : false}
+                                normal={isNormal}
                                 first={isFirst}
                                 center={isCenter}
                                 last={isLast}
                                 name={item.id_user === UserRoot.id ? "Bạn" : item.user}
-                                image={item.id_user === currentChatId.id ? currentChatId.image : false}
+                                image={item.id_user === currentChatId.id ? currentChatId.images[0] : false}
                                 rep={item.type === "reply" ? true : false}
                                 rep_name={item.type === "reply" ? (currentChatId.data_Message.find(msg => msg.id === item.rep)?.id_user === UserRoot.id ? item.id_user === UserRoot.id ? "chính mình" : "bạn" : currentChatId.data_Message.find(msg => msg.id === item.rep)?.user) : ""}
                                 rep_content={item.type === "reply" ? currentChatId.data_Message.find(msg => msg.id === item.rep)?.content : ""}
@@ -249,17 +259,18 @@ function ChatBox({ className, onClick }) {
                         </div>
                     </Tippy>
                     <Tippy
-                        content={"Chọn biểu tượng cảm xúc"}
+                        content={"Đính kèm file có kích thước tối đa 100MB"}
                         placement="top"
                         delay={[300, 0]}
                         interactive={true}
                     >
-                        <div className={cx("icon")}>
+                        <div className={cx("icon")} onClick={() => inputFileRef.current.click()}>
                             <Img />
+                            <input type="file" ref={inputFileRef} style={{display: "none"}}/>
                         </div>
                     </Tippy>
                     <Tippy
-                        content={"Chọn biểu tượng cảm xúc"}
+                        content={"Chọn nhãn dán"}
                         placement="top"
                         delay={[300, 0]}
                         interactive={true}
@@ -269,7 +280,7 @@ function ChatBox({ className, onClick }) {
                         </div>
                     </Tippy>
                     <Tippy
-                        content={"Chọn biểu tượng cảm xúc"}
+                        content={"Chọn file GIF"}
                         placement="top"
                         delay={[300, 0]}
                         interactive={true}

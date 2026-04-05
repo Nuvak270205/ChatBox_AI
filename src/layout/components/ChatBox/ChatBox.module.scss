@@ -1,4 +1,6 @@
-
+:root{
+    --color-icon-primary: #0084ff;
+}
 .chat-box {
     width: 100%;
     height: 100%;
@@ -82,7 +84,7 @@
                 svg{
                     width: 20px;
                     height: 20px;
-                    color: #0084ff;
+                    color: var(--color-icon-primary);
                 }
             }
             .icon:hover{

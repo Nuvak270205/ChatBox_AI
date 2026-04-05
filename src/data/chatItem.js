@@ -2,7 +2,7 @@ import {ThumbsUp} from 'lucide-react';
 const arrContent = [
         {
             id: 1,
-            image: "https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg",
+            images: ["https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg", "https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg"],
             user: "Nguyen Van A",
             arr_user: [1,27],
             content: "Hello, how are you?",
@@ -152,8 +152,9 @@ const arrContent = [
         },
         {
             id: 2,
-            image: "https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg",
+            images: ["https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg"],
             user: "Nguyen Van A",
+            arr_user: [2,27],
             content: "Hello, how are you?",
             time: new Date("2025-11-11T10:30:00"),
             check: false,
@@ -207,110 +208,136 @@ const arrContent = [
         },
         {
             id: 3,
-            image: "https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg",
+            images: ["https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg"],
             user: "Nguyen Van A",
+            arr_user: [3,27],
             content: "Hello, how are you?",
             time: new Date("2025-11-11T10:30:00"),
             check: false,
             bell: false,
             imageSub: "https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg",
+            data_Message: []
         },
         {
             id: 4,
-            image: "https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg",
-            user: "Nguyen Van A",
+            images: ["https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg"],
+            user: "Nguyen Van B",
+            arr_user: [4,27],
             content: "Hello, how are you?",
             time: new Date("2025-11-11T10:30:00"),
             check: false,
             bell: false,
             imageSub: "https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg",
+            data_Message: []
         },
         {
             id: 5,
-            image: "https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg",
+            images: ["https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg"],
             user: "Nguyen Van A",
+            arr_user: [5,27],
             content: "Hello, how are you?",
             time: new Date("2025-11-11T10:30:00"),
             check: false,
             bell: false,
             imageSub: "https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg",
+            data_Message: []
+
         },
         {
             id: 6,
-            image: "https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg",
+            images: ["https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg"],
             user: "Nguyen Van A",
+            arr_user: [6,27],
             content: "Hello, how are you?",
             time: new Date("2025-11-11T10:30:00"),
             check: false,
             bell: false,
             imageSub: "https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg",
+            data_Message: []
+
         },
         {
             id: 7,
-            image: "https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg",
+            images: ["https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg"],
             user: "Nguyen Van A",
+            arr_user: [7,27],
             content: "Hello, how are you?",
             time: new Date("2025-11-11T10:30:00"),
             check: false,
             bell: false,
             imageSub: "https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg",
+            data_Message: []
+
         },
         {
             id: 8,
-            image: "https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg",
+            images: ["https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg"],
             user: "Nguyen Van A",
+            arr_user: [8,27],
             content: "Hello, how are you?",
             time: new Date("2025-11-11T10:30:00"),
             check: false,
             bell: false,
             imageSub: "https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg",
+            data_Message: []
+
         },
         {
             id: 9,
-            image: "https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg",
+            images: ["https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg"],
             user: "Nguyen Van A",
+            arr_user: [9,27],
             content: "Hello, how are you?",
             time: new Date("2025-11-11T10:30:00"),
             check: false,
             bell: false,
             imageSub: "https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg",
+            data_Message: []
+
         },
         {
             id: 10,
-            image: "https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg",
+            images: ["https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg"],
             user: "Nguyen Van A",
+            arr_user: [10,27],
             content: "Hello, how are you?",
             time: new Date("2025-11-11T10:30:00"),
             check: false,
             bell: false,
             imageSub: "https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg",
+            data_Message: []
+
         },
         {
             id: 11,
-            image: "https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg",
+            images: ["https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg"],
             user: "Nguyen Van A",
+            arr_user: [11,27],
             content: "Hello, how are you?",
             time: new Date("2025-11-11T10:30:00"),
             check: false,
             bell: false,
             imageSub: "https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg",
+            data_Message: []
         },
         {
             id: 12,
-            image: "https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg",
+            images: ["https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg"],
             user: "Nguyen Van A",
+            arr_user: [12,27],
             content: "Hello, how are you?",
             time: new Date("2025-11-11T10:30:00"),
             check: false,
             bell: false,
             imageSub: "https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg",
+            data_Message: []
         },
     ];
 
     const arrContent1 = [
             {
                 id: 1,
-                image: "https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg",
+                images: ["https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg"],
                 user: "Nguyen Van A",
                 content: "Hello, how are you?",
                 time: new Date("2025-11-11T10:30:00"),
@@ -320,7 +347,7 @@ const arrContent = [
             },
             {
                 id: 2,
-                image: "https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg",
+                images: ["https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg"],
                 user: "Nguyen Van A",
                 content: "Hello, how are you?",
                 time: new Date("2025-11-11T10:30:00"),
@@ -330,7 +357,7 @@ const arrContent = [
             },
             {
                 id: 3,
-                image: "https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg",
+                images: ["https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg"],
                 user: "Nguyen Van A",
                 content: "Hello, how are you?",
                 time: new Date("2025-11-11T10:30:00"),
@@ -340,7 +367,7 @@ const arrContent = [
             },
             {
                 id: 4,
-                image: "https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg",
+                images: ["https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg"],
                 user: "Nguyen Van A",
                 content: "Hello, how are you?",
                 time: new Date("2025-11-11T10:30:00"),
@@ -350,7 +377,7 @@ const arrContent = [
             },
             {
                 id: 5,
-                image: "https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg",
+                images: ["https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg"],
                 user: "Nguyen Van A",
                 content: "Hello, how are you?",
                 time: new Date("2025-11-11T10:30:00"),
@@ -360,7 +387,7 @@ const arrContent = [
             },
             {
                 id: 6,
-                image: "https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg",
+                images: ["https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg"],
                 user: "Nguyen Van A",
                 content: "Hello, how are you?",
                 time: new Date("2025-11-11T10:30:00"),
@@ -370,7 +397,7 @@ const arrContent = [
             },
             {
                 id: 7,
-                image: "https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg",
+                images: ["https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg"],
                 user: "Nguyen Van A",
                 content: "Hello, how are you?",
                 time: new Date("2025-11-11T10:30:00"),
@@ -380,7 +407,7 @@ const arrContent = [
             },
             {
                 id: 8,
-                image: "https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg",
+                images: ["https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg"],
                 user: "Nguyen Van A",
                 content: "Hello, how are you?",
                 time: new Date("2025-11-11T10:30:00"),
@@ -390,7 +417,7 @@ const arrContent = [
             },
             {
                 id: 9,
-                image: "https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg",
+                images: ["https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg"],
                 user: "Nguyen Van A",
                 content: "Hello, how are you?",
                 time: new Date("2025-11-11T10:30:00"),
@@ -400,7 +427,7 @@ const arrContent = [
             },
             {
                 id: 10,
-                image: "https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg",
+                images: ["https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg"],
                 user: "Nguyen Van A",
                 content: "Hello, how are you?",
                 time: new Date("2025-11-11T10:30:00"),
@@ -410,7 +437,7 @@ const arrContent = [
             },
             {
                 id: 11,
-                image: "https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg",
+                images: ["https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg"],
                 user: "Nguyen Van A",
                 content: "Hello, how are you?",
                 time: new Date("2025-11-11T10:30:00"),
@@ -420,7 +447,7 @@ const arrContent = [
             },
             {
                 id: 12,
-                image: "https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg",
+                images: ["https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg"],
                 user: "Nguyen Van A",
                 content: "Hello, how are you?",
                 time: new Date("2025-11-11T10:30:00"),

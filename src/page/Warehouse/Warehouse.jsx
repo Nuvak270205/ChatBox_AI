@@ -40,7 +40,7 @@ function Warehouse({ className }) {
                     <ChatItem
                         key={item.id}
                         id ={item.id}
-                        image={item.image}
+                        images={item.images}
                         user={item.user}
                         content={item.content}
                         time={item.time}

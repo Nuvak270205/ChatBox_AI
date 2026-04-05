@@ -192,7 +192,7 @@
             svg{
                 width: 60px;
                 height: 60px;
-                fill: #0084ff;
+                fill: var(--color-icon-primary);
                 color: white
             }
         }
@@ -216,7 +216,7 @@
             }
         }
         .text{
-            background-color: #0084ff;
+            background-color: var(--color-icon-primary);
             color: white;
 
             &.first{
@@ -245,7 +245,7 @@
                 svg{
                     width: 60px;
                     height: 60px;
-                    fill: #0084ff;
+                    fill: var(--color-icon-primary);
                     color: white;
                     transform: scaleX(-1);
                 }
@@ -272,12 +272,17 @@
             margin-top: 2px;
         }
 
-        .user{
-            img{
-                width: 16px;
-                height: 16px;
-                border-radius: 50%;
-                margin-top: 2px;
+        .users{
+            display: flex;
+            gap: 4px;
+
+            .user{
+                img{
+                    width: 16px;
+                    height: 16px;
+                    border-radius: 50%;
+                    margin-top: 2px;
+                }
             }
         }
     }

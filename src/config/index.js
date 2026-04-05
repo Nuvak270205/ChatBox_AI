@@ -1,2 +1,2 @@
 export { publicRoutes, privateRoutes } from './routes';
-export { default as db } from './firebase';
+export { db, auth } from './firebase';
