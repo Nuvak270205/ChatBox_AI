@@ -64,7 +64,7 @@ function Dashboard({ className }) {
                     user={item.user}
                     content={item.content}
                     time={item.time}
-                    check={item.check}
+                    check={item.data_Message.length == 0 ? null : item.data_Message[item.data_Message.length - 1].arrUser.length > 0 ? item.imageSub : null}
                     bell={item.bell}
                     imageSub={item.imageSub}
                     onClick={() => setIsActive(item.id)}
