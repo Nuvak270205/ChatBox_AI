@@ -15,6 +15,7 @@
     "classnames": "^2.5.1",
     "emoji-picker-react": "^4.17.4",
     "firebase": "^12.8.0",
+    "firebase-admin": "^13.7.0",
     "framer-motion": "^12.26.2",
     "lucide-react": "^0.562.0",
     "normalize.css": "^8.0.1",

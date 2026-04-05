@@ -17,9 +17,10 @@ const cx = classNames.bind(styles);
 
 function ChatBox({ className, onClick }) {
     // biến state
-    const [currentChatId, setCurrentChatId] = useState(arrContent[0]);
+    const [currentChatId, setCurrentChatId] = useState({});
     const [isEmpty, setIsEmpty] = useState(true);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const [loading, setLoading] = useState(true);
     // biến router
     const { chatId } = useParams();
     const navigate = useNavigate();
@@ -58,7 +59,8 @@ function ChatBox({ className, onClick }) {
     }
     }, [chatId, location.pathname, navigate]);
     useEffect(() => {
-        setCurrentChatId(arrContent[0]);
+        setCurrentChatId(arrContent.find(item => item.id === parseInt(chatId)));
+        setLoading(false);
     }, [chatId]);
 
     useEffect(() => {
@@ -110,6 +112,13 @@ function ChatBox({ className, onClick }) {
         }
     }, []);
 
+    if (loading) {
+        
+        return (
+        <div className={cx("chat-box", { [className]: className })}>
+            <div className={cx("loading")}></div>
+        </div>)
+    }
 
     return (
         <div className={cx("chat-box", { [className]: className })}>
