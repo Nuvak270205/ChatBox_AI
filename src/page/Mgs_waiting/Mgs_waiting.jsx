@@ -1,6 +1,6 @@
 import classNames from "classnames/bind";
 import {useParams} from "react-router-dom";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {ProfileItem}  from "~/components/ProfileItem/index.jsx";
 import ChatItem from "~/components/ChatItem/index.jsx";
 import PropTypes from "prop-types";
@@ -13,22 +13,39 @@ const cx = classNames.bind(styles);
 function Mgs_waiting({ className }) {
     const { chatId } = useParams();
     const [page, setPage] = useState(1);
+    const [currentData, setCurrentData] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [isActive, setIsActive] = useState(chatId ? Number(chatId) : null);
     const [isActive1, setIsActive1] = useState(chatId ? Number(chatId) : null);
+    const bodyRef = useRef(null);
+
     useEffect(() => {
-        const contentElement = document.querySelector(`.${cx("content")}`);
+        const bodyElement = bodyRef.current;
+        if (!bodyElement) return;
+
         function handBorderTopContent(){
-            if(contentElement.scrollTop > 0){
-                contentElement.style.borderTop = "2px solid rgba(0, 0, 0, 0.05)";
+            if(bodyElement.scrollTop > 0){
+                bodyElement.style.borderTop = "2px solid rgba(0, 0, 0, 0.05)";
             }else{
-                contentElement.style.borderTop = "none";
+                bodyElement.style.borderTop = "none";
             }
        }
-        contentElement.addEventListener("scroll", handBorderTopContent);
+        bodyElement.addEventListener("scroll", handBorderTopContent);
         return () => {
-            contentElement.removeEventListener("scroll", handBorderTopContent);
+            bodyElement.removeEventListener("scroll", handBorderTopContent);
         }
     }, []);
+
+    useEffect(() => {
+        setLoading(true);
+        const timer = setTimeout(() => {
+            setCurrentData(page === 1 ? arrContent : arrContent1);
+            setLoading(false);
+        }, 1200);
+
+        return () => clearTimeout(timer);
+    }, [page]);
+
     return <div className={cx("mgs_waiting", {
         [className]: className
     })}>
@@ -52,9 +69,10 @@ function Mgs_waiting({ className }) {
                 onClick={() => setPage(2)}
             >Spam</div>
         </div>
-        <div className={cx("body")}>
+        <div ref={bodyRef} className={cx("body")}>
             <div className={cx("content")}>
-                {page === 1 && arrContent.map((item) => (
+                {loading && <div className={cx("loading")}></div>}
+                {!loading && page === 1 && currentData?.map((item) => (
                     <ChatItem 
                         key={item.id}
                         id={item.id}
@@ -72,7 +90,7 @@ function Mgs_waiting({ className }) {
                         active={isActive === item.id}
                     />
                 ))}
-                {page === 2 && arrContent1.map((item) => (
+                {!loading && page === 2 && currentData?.map((item) => (
                     <ChatItem 
                         key={item.id}
                         id={item.id}

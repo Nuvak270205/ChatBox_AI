@@ -145,7 +145,64 @@ const arrContent = [
                     status: "Đã gửi",
                     arrUser: [1],
                     type: "normal"
+                },
+                 {
+                    id: 14,
+                    id_user: 27,
+                    user: "Maris",
+                    content_image: "https://res.cloudinary.com/dpnza0kof/image/upload/v1762748251/skd8zd0hmzymm0f1ivwn.jpg",
+                    time: new Date("2026-03-03T12:36:00"),
+                    status: "Đã gửi",
+                    arrUser: [1],
+                    type: "forward"
+                },
+                 {
+                    id: 15,
+                    id_user: 27,
+                    user: "Maris",
+                    content: "Beutiful scenery!",
+                    time: new Date("2026-03-03T12:37:00"),
+                    status: "Đã gửi",
+                    arrUser: [1],
+                    type: "reply",
+                    rep: 14
+                },
+                 {
+                    id: 16,
+                    id_user: 27,
+                    user: "Maris",
+                    time: new Date("2026-03-03T12:37:00"),
+                    status: "Đã gửi",
+                    arrUser: [1],
+                    type: "file",
+                    titlefile: "Document.pdf",
+                    sizefile: 204800
                 }
+                ,
+                 {
+                    id: 17,
+                    id_user: 27,
+                    user: "Maris",
+                    content: "Please check the attached file.",
+                    time: new Date("2026-03-03T12:37:00"),
+                    status: "Đã gửi",
+                    arrUser: [1],
+                    type: "reply",
+                    rep: 16,
+                }
+                ,
+                 {
+                    id: 17,
+                    id_user: 27,
+                    user: "Maris",
+                    time: new Date("2026-03-03T12:37:00"),
+                    status: "Đã gửi",
+                    arrUser: [1],
+                    type: "forward",
+                    titlefile: "Document.pdf",
+                    sizefile: 204800
+                }
+
             ]
 
             

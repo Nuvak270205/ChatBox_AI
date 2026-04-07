@@ -1,6 +1,6 @@
 import classNames from "classnames/bind";
 import {useParams} from "react-router-dom";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ChatItem from "~/components/ChatItem/index.jsx";
 import PropTypes from "prop-types";
 import { arrContent } from "~/data";
@@ -10,22 +10,38 @@ const cx = classNames.bind(styles);
 
 function Warehouse({ className }) {
     const { chatId } = useParams();
+    const [current, setCurrent] = useState(null);
+    const [loading, setLoading] = useState(true);
     const [isActive, setIsActive] = useState(chatId ? Number(chatId) : null);
+    const bodyRef = useRef(null);
+
     useEffect(() => {
-                const contentElement = document.querySelector(`.${cx("content")}`);
-                function handBorderTopContent(){
-                    if(contentElement.scrollTop > 0){
-                        contentElement.style.borderTop = "2px solid rgba(0, 0, 0, 0.05)";
-                    }else{
-                        contentElement.style.borderTop = "none";
-                    }
-        
-                }
-                contentElement.addEventListener("scroll", handBorderTopContent);
-                return () => {
-                    contentElement.removeEventListener("scroll", handBorderTopContent);
-                }
-            }, []);
+        const bodyElement = bodyRef.current;
+        if (!bodyElement) return;
+
+        function handBorderTopContent(){
+            if(bodyElement.scrollTop > 0){
+                bodyElement.style.borderTop = "2px solid rgba(0, 0, 0, 0.05)";
+            }else{
+                bodyElement.style.borderTop = "none";
+            }
+
+        }
+        bodyElement.addEventListener("scroll", handBorderTopContent);
+        return () => {
+            bodyElement.removeEventListener("scroll", handBorderTopContent);
+        }
+    }, []);
+
+    useEffect(() => {
+        setCurrent(arrContent);
+        const timer = setTimeout(() => {
+            setLoading(false);
+        }, 1200);
+
+        return () => clearTimeout(timer);
+    }, []);
+
     return <div className={cx("warehouse", {
         [className]: className
     })}>
@@ -34,9 +50,11 @@ function Warehouse({ className }) {
                 Đoạn Chat Lưu Trữ
             </div>
         </div>
-        <div className={cx("body")}>
+        <div ref={bodyRef} className={cx("body")}>
+            {loading ?
+            <div className={cx("loading")}></div> :
             <div className={cx("content")}>
-                {arrContent.map((item) => (
+                {current.map((item) => (
                     <ChatItem
                         key={item.id}
                         id ={item.id}
@@ -51,7 +69,7 @@ function Warehouse({ className }) {
                         active={isActive === item.id}
                     />
                 ))}
-            </div>
+            </div>}
         </div> 
     </div>;
 }

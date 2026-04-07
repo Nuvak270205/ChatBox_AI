@@ -114,7 +114,9 @@ function ChatBox({ className, onClick }) {
     }, []);
 
     if (loading) {
-        return <div>Loading...</div>;
+        return <div className={cx("chat-box")}>
+            <div className={cx("loading")}></div>
+        </div>;
     }
 
     return (
@@ -122,7 +124,7 @@ function ChatBox({ className, onClick }) {
             <div className={cx("header")}>
                 <div className={cx("header-left")}>
                     <div className={cx("header-image")}>
-                        <Image src={currentChatId?.images[0]} alt={currentChatId.user} />
+                        <Image src={currentChatId?.images[0]}/>
                     </div>
                     <div className={cx("header-title")}>
                         <div className={cx("header-user")}>{currentChatId.user}</div>
@@ -153,7 +155,7 @@ function ChatBox({ className, onClick }) {
             <div ref={bodyRef} className={cx("body")}>
                 <div className={cx("body-overview")}>
                     <div className={cx("body-image")}>
-                        <Image src={currentChatId.images[0]} alt={currentChatId.user} />
+                        <Image src={currentChatId.images[0]}/>
                     </div>
                     <div className={cx("body-user")}>{currentChatId.user}</div>
                     <div className={cx("body-status")}>Tin nhắn và cuộc gọi được bảo mật bằng tính năng mã hóa đầu cuối. Chỉ những người tham gia đoạn chat này mới có thể đọc, nghe hoặc chia sẻ. </div>
@@ -222,6 +224,9 @@ function ChatBox({ className, onClick }) {
                                 {isTimeShow && <Time date={item.time} />}
                                 <Chat
                                 content={item.content}
+                                content_image={item.content_image}
+                                titlefile={item.titlefile}
+                                sizefile={item.sizefile}
                                 time={item.time}
                                 arrUser={isCurrentUser ? currentChatId.images : []}
                                 status={isCurrentUser ? item.status : null}
@@ -237,6 +242,8 @@ function ChatBox({ className, onClick }) {
                                 rep_name={item.type === "reply" ? (currentChatId.data_Message.find(msg => msg.id === item.rep)?.id_user === UserRoot.id ? item.id_user === UserRoot.id ? "chính mình" : "bạn" : currentChatId.data_Message.find(msg => msg.id === item.rep)?.user) : ""}
                                 rep_content={item.type === "reply" ? currentChatId.data_Message.find(msg => msg.id === item.rep)?.content : ""}
                                 Rep_Icon={item.type === "reply" ? currentChatId.data_Message.find(msg => msg.id === item.rep)?.Icon : null}
+                                rep_image={item.type === "reply" ? currentChatId.data_Message.find(msg => msg.id === item.rep)?.content_image : null}
+                                rep_file={item.type === "reply" ? currentChatId.data_Message.find(msg => msg.id === item.rep)?.titlefile : null}
                                 forward={item.type === "forward" ? true : false}
                                 group={isGroup}
                                 Icon={item.type === "icon" ? item.Icon : null}
