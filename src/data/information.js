@@ -1,5 +1,4 @@
 import { ChevronRight, Pin, Circle, ThumbsUp, Image, File, BellOff, Shield, ClockFading, MessageCircleOff, Eye, CircleMinus, TriangleAlert, Lock } from "lucide-react";
-import react from "react";
 const infor = {
     name: "Maris",
     subname: "maris091205",

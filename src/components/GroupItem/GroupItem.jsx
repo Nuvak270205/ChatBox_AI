@@ -24,6 +24,7 @@ function GroupItem({ className, id, image, user, number, status, active, onClick
                 }
 
                 navigate("/" + parts.join("/"));
+                window.document.title = `${user} | ChatBox AI`;
             }
         }>
             <div className={cx("avatar")}>

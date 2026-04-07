@@ -10,6 +10,7 @@ const cx = classNames.bind(styles);
 function Button({
     to,
     href,
+    target,
     onClick,
     children,
     text = false,
@@ -42,6 +43,9 @@ function Button({
     }else if (href){
         props.href = href;
         Conponent = 'a';
+        if (target) {
+            props.target = target;
+        }
     }
     const classes = cx('wrapper', {
         primary,
@@ -72,6 +76,7 @@ function Button({
 Button.propTypes = {
     to: PropTypes.string, 
     href: PropTypes.string,
+    target: PropTypes.string,
     onClick: PropTypes.func,
     children: PropTypes.node.isRequired,
     text: PropTypes.bool,

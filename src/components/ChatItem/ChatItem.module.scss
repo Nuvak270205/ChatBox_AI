@@ -17,9 +17,38 @@
     .avatar{
         width: 48px;
         height: 48px;
-        border-radius: 50%;
         overflow: hidden;
         flex-shrink: 0;
+        position: relative;
+
+        &.avatar--multiple{
+            border-radius: 50%;
+        }
+
+        .image{
+            width: 32px;
+            height: 32px;
+            position: absolute;
+
+            &.image-0{
+                left: 0;
+                bottom: 0;
+                z-index: 2;
+            }
+            &.image-1{
+                right: 0;
+                top: 0;
+                z-index: 1;
+            }
+
+            img{
+                border-radius: 50%;
+            }
+
+            .image-border{
+                border: 2px solid var(--color-background-secondary);
+            }
+        }
     }
 
     .info{

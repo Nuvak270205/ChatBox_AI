@@ -1,12 +1,14 @@
 import classNames from "classnames/bind";
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import PropTypes from "prop-types";
-import { menuGroups, menuItems, userMenu } from "~/data";
+import { menuGroups, userMenu, menuItems} from "~/data";
 import MenuItem from "~/components/MenuItem/index.jsx";
 import {ProfileItem, ProfileItemWithRef} from "~/components/ProfileItem/index.jsx";
 import Menu from '~/components/Poper/Menu/index.jsx';
-import { PanelLeftClose } from "lucide-react";
+import * as Icons from "lucide-react";
+const iconMap = Icons;
 import styles from "./Sidebar.module.scss";
+import { Model } from "~/components/Model";
 
 const cx = classNames.bind(styles);
 
@@ -41,6 +43,7 @@ function Sidebar({ className }) {
     };
   }, [])
 
+
   const handClickLevelHigh = useCallback(() => {
     setLevelhigh((prev) => !prev);
   }, []);
@@ -52,7 +55,7 @@ function Sidebar({ className }) {
         <MenuItem
           key={index}
           to={item.to}
-          icon={item.icon}
+          icon={iconMap[item.icon]}
           active={activeIndexMenu === index}
           onClick={() => {
             setActiveIndexMenu(index);
@@ -97,8 +100,9 @@ function Sidebar({ className }) {
             levelhigh={levelhigh}
           />
         </Menu>
+        
         <ProfileItem
-          icon={PanelLeftClose}
+          icon={iconMap["PanelLeftClose"]}
           onClick={handClickLevelHigh}
         />
       </div>

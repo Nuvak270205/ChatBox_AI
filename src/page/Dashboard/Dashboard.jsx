@@ -1,5 +1,5 @@
 import classNames from "classnames/bind";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {useParams} from "react-router-dom";
 import PropTypes from "prop-types";
 import {ProfileItem}  from "~/components/ProfileItem/index.jsx";
@@ -12,25 +12,42 @@ import styles from "./Dasboard.module.scss";
 const cx = classNames.bind(styles);
 
 function Dashboard({ className }) {
+    // Lấy chatId từ URL
     const { chatId } = useParams();
+    // Cac state để quản lý trạng thái của component
+    const [current, setCurrent] = useState(null);
+    const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [isFocused, setIsFocused] = useState(false);
     const [isActive, setIsActive] = useState(chatId ? Number(chatId) : null);
+    const bodyRef = useRef(null);
 
+    // Effect để xử lý sự kiện scroll và thay đổi border-top của content
     useEffect(() => {
-        const contentElement = document.querySelector(`.${cx("content")}`);
+        const bodyElement = bodyRef.current;
+        if (!bodyElement) return;
+
         function handBorderTopContent(){
-            if(contentElement.scrollTop > 0){
-                contentElement.style.borderTop = "2px solid rgba(0, 0, 0, 0.05)";
+            if(bodyElement.scrollTop > 0){
+                bodyElement.style.borderTop = "2px solid rgba(0, 0, 0, 0.05)";
             }else{
-                contentElement.style.borderTop = "none";
+                bodyElement.style.borderTop = "none";
             }
 
         }
-        contentElement.addEventListener("scroll", handBorderTopContent);
+        bodyElement.addEventListener("scroll", handBorderTopContent);
         return () => {
-            contentElement.removeEventListener("scroll", handBorderTopContent);
+            bodyElement.removeEventListener("scroll", handBorderTopContent);
         }
+    }, []);
+
+    useEffect(() => {
+        setCurrent(arrContent);
+        const timer = setTimeout(() => {
+            setLoading(false);
+        }, 1200);
+
+        return () => clearTimeout(timer);
     }, []);
 
 
@@ -54,13 +71,17 @@ function Dashboard({ className }) {
                 isFocused={isFocused}
             />
         </div>
-        <div className={cx("body")}>
+        <div ref={bodyRef} className={cx("body")}>
+            {loading ? 
+            <div className={cx("loading")}></div> :
             <div className={cx("content")}>
-                {arrContent.map((item) => (
+                {current.length == 0 ? 
+                <div className={cx("no-results")}>Không có đoạn chat nào</div>
+                : current.map((item) => (
                 <ChatItem
                     key={item.id}
                     id ={item.id}
-                    image={item.image}
+                    images={item.images}
                     user={item.user}
                     content={item.content}
                     time={item.time}
@@ -71,7 +92,7 @@ function Dashboard({ className }) {
                     active={isActive === item.id}
                 />
             ))}
-            </div>
+            </div>}
         </div> 
     </div>;
 }
