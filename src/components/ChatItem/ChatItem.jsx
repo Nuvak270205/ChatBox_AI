@@ -7,7 +7,7 @@ import Image from "../Image/index.jsx";
 import { BellOff } from "lucide-react";
 const cx = classNames.bind(styles);
 
-function ChatItem({ className, id, image, user, content, time, check, bell, imageSub, onClick, active }) {
+function ChatItem({ className, id, images, user, content, time, check, bell, imageSub, onClick, active }) {
 
     const timeRef = useRef(null);
     const navigate = useNavigate();
@@ -33,7 +33,7 @@ function ChatItem({ className, id, image, user, content, time, check, bell, imag
         }
 
         handleTime();
-        const timer = setInterval(handleTime, 60000);
+        const timer = setInterval(handleTime, 600000);
 
         return () => clearInterval(timer);
     }, [time]);
@@ -52,11 +52,18 @@ function ChatItem({ className, id, image, user, content, time, check, bell, imag
                 }
 
                 navigate("/" + parts.join("/"));
-                window.document.title = `${user}`;
+                window.document.title = `${user} | ChatBox AI`;
             }
         }>
-            <div className={cx("avatar")}>
-                <Image src={image} alt={user} />
+            <div className={cx("avatar", { "avatar--multiple": images.length === 1 })}>
+                {images.length === 1 ? 
+                    (<Image src={images[0]} alt={user} />):
+                    (images.map((image, index) => {
+                        return <div className={cx("image", `image-${index}`)} key={index}>
+                                <Image key={index} src={image} alt={user} className={cx({"image-border": index === 0})}/>
+                            </div>;
+                    }))
+                }
             </div>
             <div className={cx("info")}>
                 <div className={cx("user")}>{user}</div>
@@ -93,7 +100,7 @@ function ChatItem({ className, id, image, user, content, time, check, bell, imag
 ChatItem.propTypes = {
     className: PropTypes.string,
     id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-    image: PropTypes.string.isRequired,
+    images: PropTypes.arrayOf(PropTypes.string).isRequired,
     user: PropTypes.string.isRequired,
     content: PropTypes.string.isRequired,
     time: PropTypes.oneOfType([PropTypes.instanceOf(Date), PropTypes.string]).isRequired,
