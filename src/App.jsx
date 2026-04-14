@@ -1,8 +1,9 @@
 import React from "react";
 import classNames from "classnames/bind";
+import { Navigate } from "react-router-dom";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import {DefaultLayout, MinimalLayout} from "~/layout/index.jsx";
-import { DefaultRoute, MinimalRoute, ProtectedRoute } from "~/route/index.jsx";
+import { DefaultRoute, MinimalRoute, ProtectedRoute, NotFoundRoute } from "~/route/index.jsx";
 import styles from "./App.module.scss";
 
 const cx = classNames.bind(styles);
@@ -26,6 +27,13 @@ function App() {
                 <Route key={route.path} path={route.path} element={<route.component />} />
             ))}
           </Route>
+          {
+            NotFoundRoute.map((route) => (
+              <Route key={route.path} path={route.path} element={<route.component />} />
+            ))
+          }
+
+          <Route path="/" element={<Navigate to="/dashboard/1" replace />} /> 
         </Routes>
       </Router>
     </div>

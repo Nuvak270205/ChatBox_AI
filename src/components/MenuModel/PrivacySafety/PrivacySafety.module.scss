@@ -1,0 +1,88 @@
+.privacy {
+  width: min(760px, 92vw);
+  max-height: min(82vh, 860px);
+  overflow-y: auto;
+  padding: 22px;
+  border-radius: 14px;
+  border: 1px solid #dbeafe;
+  background: linear-gradient(155deg, #f8fbff 0%, #ffffff 100%);
+  font-family: "Be Vietnam Pro", "Segoe UI", sans-serif;
+}
+
+.header {
+  span {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: #1d4ed8;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #dbeafe;
+  }
+
+  h2 {
+    margin: 12px 0 6px;
+    font-size: 27px;
+    font-weight: 800;
+  }
+
+  p {
+    margin: 0;
+    color: #64748b;
+    font-size: 14px;
+  }
+}
+
+.settings {
+  margin-top: 14px;
+  display: grid;
+  gap: 10px;
+
+  label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #bfdbfe;
+    background: #fff;
+  }
+
+  h4 {
+    margin: 0;
+    font-size: 14px;
+  }
+
+  p {
+    margin: 4px 0 0;
+    color: #6b7280;
+    font-size: 12px;
+  }
+
+  input {
+    width: 18px;
+    height: 18px;
+    accent-color: #2563eb;
+  }
+}
+
+.chips {
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    color: #1e3a8a;
+    background: #eff6ff;
+  }
+}

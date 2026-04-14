@@ -49,9 +49,38 @@
             .header-image{
                 width: 36px;
                 height: 36px;
-                border-radius: 50%;
                 object-fit: cover;
                 overflow: hidden;
+                position: relative;
+
+                &.avatar--multiple{
+                    border-radius: 50%;
+                }
+
+                .image{
+                    width: 24px;
+                    height: 24px;
+                    position: absolute;
+
+                    &.image-0{
+                        left: 0;
+                        bottom: 0;
+                        z-index: 2;
+                    }
+                    &.image-1{
+                        right: 0;
+                        top: 0;
+                        z-index: 1;
+                    }
+
+                    img{
+                        border-radius: 50%;
+                    }
+
+                    .image-border{
+                        border: 2px solid var(--color-background-secondary);
+                    }
+                }
             }
             .header-title{
                 display: flex;

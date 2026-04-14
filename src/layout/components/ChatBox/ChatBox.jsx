@@ -24,13 +24,12 @@ function ChatBox({ className, onClick }) {
     const [rep, setRep] = useState(null);
     // biến router
     const { chatId } = useParams();
-    const navigate = useNavigate();
-    const location = useLocation();
     //biến ref
     const inputRef = useRef(null);
     const bodyRef = useRef(null);
     const emojiPickerRef = useRef(null);
     const inputFileRef = useRef(null);
+    const inputImageRef = useRef(null);
     // biến online giả lập
     const onl = true;
 
@@ -66,11 +65,6 @@ function ChatBox({ className, onClick }) {
 
     console.log(currentChat);
 
-    useEffect(() => {
-    if (!chatId) {
-        navigate(`1`, { replace: true });
-    }
-    }, [chatId, location.pathname, navigate]);
     useEffect(() => {
         if (!chatId) return;
 
@@ -150,8 +144,15 @@ function ChatBox({ className, onClick }) {
         <div className={cx("chat-box", { [className]: className })}>
                 <div className={cx("header")}>
                     <div className={cx("header-left")}>
-                        <div className={cx("header-image")}>
-                            <Image src={currentChatId?.images[0]}/>
+                        <div className={cx("header-image", {"avatar--multiple": currentChatId?.images.length === 1})}>
+                            {currentChatId?.images.length === 1 ? 
+                                (<Image src={currentChatId?.images[0]}/>):
+                                (currentChatId?.images.map((image, index) => {
+                                    return <div className={cx("image", `image-${index}`)} key={index}>
+                                                <Image key={index} src={image} className={cx({"image-border": index === 0})}/>
+                                            </div>;
+                                    }))
+                                }
                         </div>
                         <div className={cx("header-title")}>
                             <div className={cx("header-user")}>{currentChatId.user}</div>
@@ -314,9 +315,9 @@ function ChatBox({ className, onClick }) {
                                 delay={[300, 0]}
                                 interactive={true}
                             >
-                                <div className={cx("icon")} onClick={() => inputFileRef.current.click()}>
+                                <div className={cx("icon")} onClick={() => inputImageRef.current.click()}>
                                     <Img />
-                                    <input type="file" ref={inputFileRef} style={{display: "none"}}/>
+                                    <input type="file" ref={inputImageRef} style={{display: "none"}} accept="image/*"/>
                                 </div>
                             </Tippy>
                             <Tippy
@@ -325,8 +326,9 @@ function ChatBox({ className, onClick }) {
                                 delay={[300, 0]}
                                 interactive={true}
                             >
-                                <div className={cx("icon")}>
+                                <div className={cx("icon")} onClick={() => inputFileRef.current.click()}>
                                     <Sticker />
+                                    <input type="file" ref={inputFileRef} style={{display: "none"}} accept=".pdf,.doc,.docx,.xls,.xlsx,.txt"/>
                                 </div>
                             </Tippy>
                             <Tippy

@@ -1,0 +1,121 @@
+.restricted {
+  width: min(760px, 92vw);
+  max-height: min(82vh, 860px);
+  overflow-y: auto;
+  padding: 22px;
+  border-radius: 14px;
+  border: 1px solid #fee2e2;
+  background: linear-gradient(160deg, #fff8f8 0%, #ffffff 100%);
+  font-family: "Be Vietnam Pro", "Segoe UI", sans-serif;
+}
+
+.header {
+  span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #b91c1c;
+    background: #fee2e2;
+    padding: 4px 10px;
+    border-radius: 999px;
+  }
+
+  h2 {
+    margin: 12px 0 6px;
+    font-size: 28px;
+    font-weight: 800;
+  }
+
+  p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 14px;
+  }
+}
+
+.warning {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px dashed #fca5a5;
+  border-radius: 10px;
+  background: #fff1f2;
+
+  svg {
+    color: #b91c1c;
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+
+  p {
+    margin: 0;
+    color: #7f1d1d;
+    font-size: 13px;
+  }
+}
+
+.list {
+  margin-top: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid #fecaca;
+  border-radius: 11px;
+  background: #fff;
+
+  span {
+    font-size: 12px;
+    color: #9ca3af;
+  }
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.meta {
+  h4 {
+    margin: 0;
+    font-size: 14px;
+  }
+
+  p {
+    margin: 3px 0 0;
+    font-size: 12px;
+    color: #6b7280;
+  }
+}
+
+.actions {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+
+  button {
+    border: 1px solid #fecaca;
+    border-radius: 10px;
+    background: #fff;
+    padding: 11px 12px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+}

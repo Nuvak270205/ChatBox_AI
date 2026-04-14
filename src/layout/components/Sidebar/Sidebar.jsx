@@ -8,15 +8,28 @@ import Menu from '~/components/Poper/Menu/index.jsx';
 import * as Icons from "lucide-react";
 const iconMap = Icons;
 import styles from "./Sidebar.module.scss";
-import { Model } from "~/components/Model";
+import MenuModel from "~/components/MenuModel";
 
 const cx = classNames.bind(styles);
+const modalTypes = new Set([
+  "setting",
+  "update-username",
+  "restricted-account",
+  "privacy-and-safety",
+  "accessibility",
+  "family-center",
+  "help",
+  "terms",
+  "privacy-policy",
+  "cookie-policy",
+]);
 
 function Sidebar({ className }) {
   const [activeIndexMenu, setActiveIndexMenu] = useState(0);
   const [show, setShow] = useState(false);
   const [levelhigh, setLevelhigh] = useState(false);
   const [activeIndexGroup, setActiveIndexGroup] = useState(-1);
+  const [showModel, setShowModel] = useState(null);
   const profileRef = useRef(null);
 
   useEffect(() => {
@@ -48,8 +61,17 @@ function Sidebar({ className }) {
     setLevelhigh((prev) => !prev);
   }, []);
 
+  const handleClickShowModel = useCallback((value) => {
+    if (!modalTypes.has(value)) {
+      return;
+    }
+
+    setShowModel(value);
+  }, []);
+
   return (
     <div className={cx("sidebar", { [className]: className, levelhigh: levelhigh })}>
+        {showModel && <MenuModel type={showModel} onClose={() => setShowModel(null)} />}
       <div className={cx("menu")}>
         {menuItems.map((item, index) => (
         <MenuItem
@@ -84,6 +106,7 @@ function Sidebar({ className }) {
       <div className={cx("profile", { levelhigh: levelhigh })}>
         <Menu
           item={userMenu}
+          onHandleShowModel={handleClickShowModel}
           onClick={() => setShow(!show)}
           show={show}
           onBack={() => {

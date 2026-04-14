@@ -1,11 +1,13 @@
 const publicRoutes = {
-    dashboard: '/:chatId?',
+    dashboard: '/dashboard/:chatId?',
     marketplace: '/marketplace/:chatId?',
     msg_waiting: '/msg_waiting/:chatId?',
     warehouse: '/warehouse/:chatId?',
     group: '/group/:idGroup/:chatId?',
     login : '/login',
-    register : '/register'
+    logout : '/logout',
+    register : '/register',
+    notfound : '*',
 }
 
 const privateRoutes = {
