@@ -10,7 +10,7 @@ import Header from './Header';
 const cx = classNames.bind(styles);
 const defaultChange = () => {};
 
-function Menu({children, item = [], onChange = defaultChange, onClick, onBack, show}) {
+function Menu({children, item = [], onChange = defaultChange, onClick, onBack, show, onHandleShowModel}) {
 
     const [history, setHistory] = useState([{ data: item }]);
     const current = history[history.length - 1];
@@ -29,6 +29,9 @@ function Menu({children, item = [], onChange = defaultChange, onClick, onBack, s
                     } else if (!!item.to || (!!item.children == false)) {
                         onChange(item);
                         onClick && onClick();
+                    }
+                    if(item.type){
+                        onHandleShowModel(item.type);
                     }
                 }}
 
@@ -80,6 +83,10 @@ Menu.propTypes = {
     children: PropTypes.node.isRequired,
     item: PropTypes.array,
     onChange: PropTypes.func,
+    onClick: PropTypes.func,
+    onBack: PropTypes.func,
+    show: PropTypes.bool,
+    onHandleShowModel: PropTypes.func
 };
 
 export default Menu;

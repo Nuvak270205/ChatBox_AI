@@ -6,6 +6,7 @@ import Group from "~/page/Group/index.jsx";
 import Register from "~/page/Register/index.jsx";
 import Warehouse from "~/page/Warehouse/index.jsx";
 import Login from "~/page/Login/index.jsx";
+import NotFound from "~/page/NotFound/index.jsx";
 
 import {publicRoutes} from "~/config";
 
@@ -50,4 +51,12 @@ const MinimalRoute = [
     },
 ];
 
-export { DefaultRoute, MinimalRoute };
+const NotFoundRoute = [
+    {
+        path: publicRoutes.notfound,
+        component: NotFound,
+        layout: MinimalLayout,
+    },
+]
+
+export { DefaultRoute, MinimalRoute, NotFoundRoute };
