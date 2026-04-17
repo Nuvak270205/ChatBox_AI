@@ -86,11 +86,16 @@
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
+                min-width: 0;
+                max-width: 220px;
 
                 .header-user{
                     font-size: 18px;
                     font-weight: 600;
                     color: #111827;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
                 }
                 .header-online{
                     font-size: 12px;
@@ -167,6 +172,11 @@
                 font-size: 24px;
                 font-weight: 600;
                 color: #111827;
+                max-width: min(100%, 420px);
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                text-align: center;
             }
             .body-status{
                 font-size: 12px;
@@ -320,6 +330,14 @@
                     height: 20px;
                 }
 
+                &.spinner {
+                    animation: spin 1s linear infinite;
+                }
+            }
+
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
             }
 
             .icon:hover{

@@ -2,11 +2,15 @@ import classNames from "classnames/bind";
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import { motion } from "framer-motion";
 import { User, Mail, Lock, UserPlus } from "lucide-react";
 
 import styles from "./Register.module.scss";
 import Button from "../../components/Button";
+import { register } from "~/services/auth";
+import { setAuthUser } from "~/store/authSlice";
 
 const cx = classNames.bind(styles);
 
@@ -15,15 +19,31 @@ function Register({ className }) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+
         if (password !== confirmPassword) {
-            alert("Mật khẩu xác nhận không khớp!");
+            setError("Mật khẩu xác nhận không khớp!");
             return;
         }
-        // Handle register logic here
-        console.log("Register:", { name, email, password });
+
+        setLoading(true);
+        setError("");
+
+        try {
+            const authResult = await register({ name, email, password });
+            dispatch(setAuthUser(authResult));
+            navigate("/dashboard");
+        } catch (registerError) {
+            setError(registerError?.message || "Đăng ký thất bại");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -42,6 +62,16 @@ function Register({ className }) {
                 >
                     Đăng Ký
                 </motion.h2>
+                {error && (
+                    <motion.p
+                        className={cx("error")}
+                        initial={{ opacity: 0, y: -8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        style={{ color: "#ff6b6b", marginBottom: 16, textAlign: "center" }}
+                    >
+                        {error}
+                    </motion.p>
+                )}
                 <form onSubmit={handleSubmit} className={cx("form")}>
                     <motion.div
                         className={cx("input-group")}
@@ -128,9 +158,9 @@ function Register({ className }) {
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.7, duration: 0.5 }}
                     >
-                        <Button primary large className={cx("submit-btn")}>
+                        <Button primary large className={cx("submit-btn")} disablesd={loading}>
                             <UserPlus size={18} className={cx("btn-icon")} />
-                            Đăng Ký
+                            {loading ? "Đang đăng ký..." : "Đăng Ký"}
                         </Button>
                     </motion.div>
                 </form>

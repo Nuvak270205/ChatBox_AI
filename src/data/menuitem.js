@@ -157,6 +157,7 @@ const userMenu = [
         {
             icon: LogOut,
             title: 'Đăng xuất',
+            type: 'logout',
             separate: true
         }
     ]

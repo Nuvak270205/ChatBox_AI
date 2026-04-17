@@ -1,7 +1,10 @@
 import classNames from "classnames/bind";
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import PropTypes from "prop-types";
-import { menuGroups, userMenu, menuItems} from "~/data";
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { clearAuthUser } from "~/store/authSlice";
+import { userMenu, menuItems} from "~/data";
 import MenuItem from "~/components/MenuItem/index.jsx";
 import {ProfileItem, ProfileItemWithRef} from "~/components/ProfileItem/index.jsx";
 import Menu from '~/components/Poper/Menu/index.jsx';
@@ -9,6 +12,8 @@ import * as Icons from "lucide-react";
 const iconMap = Icons;
 import styles from "./Sidebar.module.scss";
 import MenuModel from "~/components/MenuModel";
+import { getUserGroups } from "~/services/group";
+import { logout } from "~/services/auth";
 
 const cx = classNames.bind(styles);
 const modalTypes = new Set([
@@ -29,8 +34,46 @@ function Sidebar({ className }) {
   const [show, setShow] = useState(false);
   const [levelhigh, setLevelhigh] = useState(false);
   const [activeIndexGroup, setActiveIndexGroup] = useState(-1);
+  const [groups, setGroups] = useState([]);
   const [showModel, setShowModel] = useState(null);
   const profileRef = useRef(null);
+  const user = useSelector((state) => state.auth.user);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const profileImage = user?.avatar || user?.avatarUrl || user?.photoURL || "";
+  const profileName = user?.name || user?.displayName || "User";
+  const profileUsername = user?.username || user?.email?.split("@")[0] || "";
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadGroups() {
+      if (!user?.uid) {
+        setGroups([]);
+        return;
+      }
+
+      try {
+        const userGroups = await getUserGroups(user.uid);
+
+        if (isMounted) {
+          setGroups(userGroups);
+        }
+      } catch (error) {
+        console.error("[Sidebar] Load groups failed:", error);
+        if (isMounted) {
+          setGroups([]);
+        }
+      }
+    }
+
+    loadGroups();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user?.uid]);
 
   useEffect(() => {
     function handleBorder(){
@@ -62,12 +105,20 @@ function Sidebar({ className }) {
   }, []);
 
   const handleClickShowModel = useCallback((value) => {
+    if (value === "logout") {
+      logout();
+      dispatch(clearAuthUser());
+      setShow(false);
+      navigate("/login");
+      return;
+    }
+
     if (!modalTypes.has(value)) {
       return;
     }
 
     setShowModel(value);
-  }, []);
+  }, [dispatch, navigate]);
 
   return (
     <div className={cx("sidebar", { [className]: className, levelhigh: levelhigh })}>
@@ -88,9 +139,9 @@ function Sidebar({ className }) {
         />
         ))}
         <MenuItem line title={"cộng đồng"} levelhigh={levelhigh}/>
-        {menuGroups.map((item, index) => (
+        {groups.map((item, index) => (
           <MenuItem
-            key={index}
+            key={item.id_G}
             to={item.to + `/${item.id_G}`}
             image={item.image}
             active={activeIndexGroup === index}
@@ -114,12 +165,12 @@ function Sidebar({ className }) {
           }}
         >
           <ProfileItemWithRef
-            innerRef={profileRef}
-            image="https://res.cloudinary.com/dpnza0kof/image/upload/v1761197706/vtdgumwes11xmnsxgt1u.jpg"
-            icon="user"
+            ref={profileRef}
+            image={profileImage}
+            icon={iconMap.User}
             onClick={() => setShow(!show)}
-            name="Marissa Nguyen"
-            subname="marissa.nguyen090978"
+            name={profileName}
+            subname={profileUsername}
             levelhigh={levelhigh}
           />
         </Menu>

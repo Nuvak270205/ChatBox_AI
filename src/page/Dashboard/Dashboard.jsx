@@ -1,12 +1,13 @@
 import classNames from "classnames/bind";
 import React, { useEffect, useRef, useState } from "react";
-import {useParams} from "react-router-dom";
+import {useParams, useNavigate} from "react-router-dom";
+import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
 import {ProfileItem}  from "~/components/ProfileItem/index.jsx";
 import Search from "~/components/Search/index.jsx";
 import ChatItem from "~/components/ChatItem/index.jsx";
-import { arrContent } from "~/data";
 import { Pencil } from "lucide-react";
+import { listenToActiveChatItems } from "~/services/chat";
 import styles from "./Dasboard.module.scss";
 
 const cx = classNames.bind(styles);
@@ -14,12 +15,15 @@ const cx = classNames.bind(styles);
 function Dashboard({ className }) {
     // Lấy chatId từ URL
     const { chatId } = useParams();
+    const navigate = useNavigate();
+    // Lấy user từ Redux store
+    const user = useSelector((state) => state.auth.user);
     // Cac state để quản lý trạng thái của component
-    const [current, setCurrent] = useState(null);
+    const [current, setCurrent] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [isFocused, setIsFocused] = useState(false);
-    const [isActive, setIsActive] = useState(chatId ? Number(chatId) : null);
+    const [isActive, setIsActive] = useState(chatId || null);
     const bodyRef = useRef(null);
 
     // Effect để xử lý sự kiện scroll và thay đổi border-top của content
@@ -42,13 +46,35 @@ function Dashboard({ className }) {
     }, []);
 
     useEffect(() => {
-        setCurrent(arrContent);
-        const timer = setTimeout(() => {
+        if (!user?.uid) {
+            setCurrent([]);
             setLoading(false);
-        }, 1200);
+            return;
+        }
 
-        return () => clearTimeout(timer);
-    }, []);
+        setLoading(true);
+
+        const unsubscribe = listenToActiveChatItems(user.uid, (chats) => {
+            setCurrent(chats);
+            setLoading(false);
+        });
+
+        return () => {
+            if (unsubscribe) unsubscribe();
+        };
+    }, [user?.uid]);
+
+    useEffect(() => {
+        setIsActive(chatId || null);
+    }, [chatId]);
+
+    useEffect(() => {
+        if (loading || chatId || current.length === 0) {
+            return;
+        }
+
+        navigate(`/dashboard/${current[0].id}`, { replace: true });
+    }, [loading, chatId, current, navigate]);
 
 
     return <div className={cx("dashboard", {
@@ -77,21 +103,27 @@ function Dashboard({ className }) {
             <div className={cx("content")}>
                 {current.length == 0 ? 
                 <div className={cx("no-results")}>Không có đoạn chat nào</div>
-                : current.map((item) => (
-                <ChatItem
-                    key={item.id}
-                    id ={item.id}
-                    images={item.images}
-                    user={item.user}
-                    content={item.content}
-                    time={item.time}
-                    check={item.data_Message.length == 0 ? null : item.data_Message[item.data_Message.length - 1].arrUser.length > 0 ? item.imageSub : null}
-                    bell={item.bell}
-                    imageSub={item.imageSub}
-                    onClick={() => setIsActive(item.id)}
-                    active={isActive === item.id}
-                />
-            ))}
+                : current
+                    .filter((item) => 
+                        item.user.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        item.content.toLowerCase().includes(searchTerm.toLowerCase())
+                    )
+                    .map((item) => (
+                    <ChatItem
+                        key={item.id}
+                        id ={item.id}
+                        images={item.images}
+                        user={item.user}
+                        senderName={item.senderName}
+                        content={item.content}
+                        time={item.time}
+                        check={item.check}
+                        bell={item.bell}
+                        imageSub={item.imageSub}
+                        onClick={() => setIsActive(item.id)}
+                        active={isActive === item.id}
+                    />
+                ))}
             </div>}
         </div> 
     </div>;
