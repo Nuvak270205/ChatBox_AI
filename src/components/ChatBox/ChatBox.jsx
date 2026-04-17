@@ -4,7 +4,7 @@ import Tippy from "@tippyjs/react";
 import Image from '~/components/Image/index.jsx';
 import 'tippy.js/dist/tippy.css';
 import PropTypes from 'prop-types';
-import {ArrowDownRight, ArrowUpLeft, EllipsisVertical, Laugh, MessageSquareShare, File, Paperclip, CornerDownLeft} from 'lucide-react';
+import {ArrowDownRight, ArrowUpLeft, EllipsisVertical, Laugh, MessageSquareShare, File, Paperclip, CornerDownLeft, Download} from 'lucide-react';
 import styles from './ChatBox.module.scss';
 const cx = classNames.bind(styles);
 
@@ -168,8 +168,14 @@ function ChatBox({ className, id, time, name, content, content_image, titlefile,
                                     <div className={cx('file-size')}>{formatFileSize(sizefile)}</div>
                                 </div>
                                 {content_image ? (
-                                    <a className={cx('file-download')} href={content_image} target="_blank" rel="noopener noreferrer">
-                                        Tải
+                                    <a
+                                        className={cx('file-download')}
+                                        href={content_image}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        aria-label={`Tải xuống ${titlefile}`}
+                                    >
+                                        <Download />
                                     </a>
                                 ) : null}
                             </div>)
