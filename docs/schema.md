@@ -4,6 +4,7 @@
 ```
 uid: string
 name: string
+username: string
 avatar: string (URL)
 createdAt: timestamp
 ```
