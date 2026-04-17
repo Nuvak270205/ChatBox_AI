@@ -1,5 +1,5 @@
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 
 import { auth, db } from "~/config";
 
@@ -64,4 +64,22 @@ async function logout() {
     await signOut(auth);
 }
 
-export { fetchUserProfile, login, register, logout };
+async function updateUsername(uid, username) {
+    if (!uid) {
+        throw new Error("Thiếu user id");
+    }
+
+    const normalizedUsername = username?.trim();
+    if (!normalizedUsername) {
+        throw new Error("Username không được để trống");
+    }
+
+    await updateDoc(doc(db, "users", uid), {
+        username: normalizedUsername,
+        updatedAt: new Date().toISOString(),
+    });
+
+    return fetchUserProfile(uid);
+}
+
+export { fetchUserProfile, login, register, logout, updateUsername };

@@ -74,6 +74,33 @@
 	}
 }
 
+.message {
+	margin-top: 12px;
+	padding: 10px 12px;
+	border-radius: 10px;
+	font-size: 13px;
+	line-height: 1.5;
+	border: 1px solid transparent;
+
+	&.error {
+		color: #b91c1c;
+		background: #fef2f2;
+		border-color: #fecaca;
+	}
+
+	&.success {
+		color: #065f46;
+		background: #ecfdf5;
+		border-color: #a7f3d0;
+	}
+}
+
+.actions {
+	margin-top: 14px;
+	display: flex;
+	justify-content: flex-end;
+}
+
 .update-name-input-wrapper {
 	display: flex;
 	align-items: center;
