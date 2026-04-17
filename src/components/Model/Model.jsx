@@ -8,11 +8,11 @@ const cx = classNames.bind(style);
 
 function Model({children, onClose}) {
   return (
-    <div className={cx('wrapper')} onClick={(event) => event.stopPropagation()}>
-      <div className={cx('icon')} onClick={onClose}>
-        <X className={cx('close-icon')}/>
-      </div>
+    <div className={cx('wrapper')}>
       <div className={cx('content')}>
+        <div className={cx('icon')} onClick={onClose}>
+          <X className={cx('close-icon')}/>
+        </div>
         {children}
       </div>
     </div>

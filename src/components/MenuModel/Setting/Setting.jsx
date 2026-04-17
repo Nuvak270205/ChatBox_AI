@@ -1,5 +1,6 @@
 import React from 'react'
 import classNames from 'classnames/bind'
+import { useSelector } from 'react-redux'
 import styles from './Setting.module.scss'
 import { Circle, Volume2, Moon, CreditCard, MessageCircleMore, CircleOff } from 'lucide-react'
 import Button from '~/components/Button'
@@ -7,6 +8,11 @@ import Button from '~/components/Button'
 const cx = classNames.bind(styles)
 
 function Setting() {
+  const user = useSelector((state) => state.auth.user)
+  const accountName = user?.name || user?.displayName || 'User'
+  const accountHandle = user?.username || user?.email?.split('@')?.[0] || ''
+  const accountAvatar = user?.avatar || user?.avatarUrl || user?.photoURL || ''
+
   return (
     <div className={cx('setting-modal')}>
       <h2 className={cx('title')}>Tùy chọn</h2>
@@ -14,10 +20,10 @@ function Setting() {
       <div className={cx('setting')}>
         <h3>Tài khoản</h3>
         <div className={cx('setting_item')}>
-            <img src="https://res.cloudinary.com/dpnza0kof/image/upload/v1761197706/vtdgumwes11xmnsxgt1u.jpg" alt="avatar" />
+            <img src={accountAvatar} alt="avatar" />
             <div className={cx('setting_item_info')}>
-                <h4>Marissa Nguyen</h4>
-                <p>marissa.nguyen090978</p>
+                <h4>{accountName}</h4>
+                <p>{accountHandle}</p>
             </div>
         </div>
       </div>

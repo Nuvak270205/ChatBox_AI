@@ -7,21 +7,25 @@ import Image from "../Image/index.jsx";
 import { BellOff } from "lucide-react";
 const cx = classNames.bind(styles);
 
-function ChatItem({ className, id, images, user, content, time, check, bell, imageSub, onClick, active }) {
+function ChatItem({ className, id, images, user, content, time, check = false, bell = false, imageSub = "", senderName = "", onClick, active }) {
 
     const timeRef = useRef(null);
     const navigate = useNavigate();
     const location = useLocation();
     const params = useParams();
+    const validImages = images.filter(Boolean).slice(0, 2);
+    const previewName = senderName || user;
 
     useEffect(() => {
         function handleTime() {
             const nowTime = new Date();
             const oldTime = new Date(time);
-            const diffTime = Math.floor((nowTime - oldTime) / 1000);
+            const rawDiff = Math.floor((nowTime - oldTime) / 1000);
+            const diffTime = Math.max(0, rawDiff);
 
             let displayTime = "";
-            if (diffTime < 60) displayTime = ` . ${diffTime} giây trước`;
+            if (diffTime < 5) displayTime = " . vừa xong";
+            else if (diffTime < 60) displayTime = ` . ${diffTime} giây trước`;
             else if (diffTime < 3600) displayTime = ` . ${Math.floor(diffTime / 60)} phút trước`;
             else if (diffTime < 86400) displayTime = ` . ${Math.floor(diffTime / 3600)} giờ trước`;
             else if (diffTime < 2592000) displayTime = ` . ${Math.floor(diffTime / 86400)} ngày trước`;
@@ -55,10 +59,10 @@ function ChatItem({ className, id, images, user, content, time, check, bell, ima
                 window.document.title = `${user} | ChatBox AI`;
             }
         }>
-            <div className={cx("avatar", { "avatar--multiple": images.length === 1 })}>
-                {images.length === 1 ? 
-                    (<Image src={images[0]} alt={user} />):
-                    (images.map((image, index) => {
+            <div className={cx("avatar", { "avatar--multiple": validImages.length === 1 })}>
+                {validImages.length === 1 ? 
+                    (<Image src={validImages[0]} alt={user} />):
+                    (validImages.map((image, index) => {
                         return <div className={cx("image", `image-${index}`)} key={index}>
                                 <Image key={index} src={image} alt={user} className={cx({"image-border": index === 0})}/>
                             </div>;
@@ -70,28 +74,22 @@ function ChatItem({ className, id, images, user, content, time, check, bell, ima
                 <div className={cx("message-info-body")}>
                     {check ? 
                     (<span className={cx("content")}> 
-                        {user.split(' ')[user.split(' ').length - 1] + ": " + content}
+                        {previewName + ": " + content}
                     </span>) :
                     (<span className={cx("content", "check")}>
-                        {user.split(' ')[user.split(' ').length - 1] + ": " + content}
+                        {previewName + ": " + content}
                     </span>)}
                     <span className={cx("time")} ref={timeRef}></span>
                 </div>
             </div>
             <div className={cx("check__avatar")}>
-            {check ? 
-                bell === false ? (
-                    <div className={cx("sub__avatar")}>
-                        <Image src={imageSub} alt={user} />
-                    </div>
-                ) : (
-                    <BellOff className={cx("icon")} />
-                )
-                 : 
-                bell === false ? null : (
-                    <BellOff className={cx("icon")} />
-                )
-            }
+            {bell ? (
+                <BellOff className={cx("icon")} />
+            ) : check && imageSub ? (
+                <div className={cx("sub__avatar")}>
+                    <Image src={imageSub} alt={user} />
+                </div>
+            ) : null}
             </div>
         </div>
     );
@@ -104,9 +102,10 @@ ChatItem.propTypes = {
     user: PropTypes.string.isRequired,
     content: PropTypes.string.isRequired,
     time: PropTypes.oneOfType([PropTypes.instanceOf(Date), PropTypes.string]).isRequired,
-    check: PropTypes.bool.isRequired,
-    bell: PropTypes.bool.isRequired,
+    check: PropTypes.bool,
+    bell: PropTypes.bool,
     imageSub: PropTypes.string,
+    senderName: PropTypes.string,
     onClick: PropTypes.func,
     active: PropTypes.bool,
 };

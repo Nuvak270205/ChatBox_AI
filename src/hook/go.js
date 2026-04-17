@@ -5,10 +5,21 @@ function useNavigateWithChatId() {
     const { chatId } = useParams();
 
     function go(pathWithoutChatId) {
-        const id = chatId;
-        const newPath = pathWithoutChatId.endsWith("/")
-            ? `${pathWithoutChatId}${id}`
-            : `${pathWithoutChatId}/${id}`;
+        const normalizedPath = pathWithoutChatId.startsWith("/") ? pathWithoutChatId : `/${pathWithoutChatId}`;
+
+        if (normalizedPath === "/dashboard") {
+            navigate(normalizedPath);
+            return;
+        }
+
+        if (!chatId) {
+            navigate(normalizedPath);
+            return;
+        }
+
+        const newPath = normalizedPath.endsWith("/")
+            ? `${normalizedPath}${chatId}`
+            : `${normalizedPath}/${chatId}`;
         navigate(newPath);
     }
 

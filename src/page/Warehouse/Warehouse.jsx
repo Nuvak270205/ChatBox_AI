@@ -1,16 +1,18 @@
 import classNames from "classnames/bind";
 import {useParams} from "react-router-dom";
 import React, { useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
 import ChatItem from "~/components/ChatItem/index.jsx";
+import { listenToArchivedChatItems } from "~/services/chat";
 import PropTypes from "prop-types";
-import { arrContent } from "~/data";
 import styles from "./Warehouse.module.scss";
 
 const cx = classNames.bind(styles);
 
 function Warehouse({ className }) {
     const { chatId } = useParams();
-    const [current, setCurrent] = useState(null);
+    const user = useSelector((state) => state.auth.user);
+    const [current, setCurrent] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isActive, setIsActive] = useState(chatId ? Number(chatId) : null);
     const bodyRef = useRef(null);
@@ -34,13 +36,22 @@ function Warehouse({ className }) {
     }, []);
 
     useEffect(() => {
-        setCurrent(arrContent);
-        const timer = setTimeout(() => {
+        if (!user?.uid) {
             setLoading(false);
-        }, 1200);
+            return;
+        }
 
-        return () => clearTimeout(timer);
-    }, []);
+        setLoading(true);
+
+        const unsubscribe = listenToArchivedChatItems(user.uid, (data) => {
+            setCurrent(data);
+            setLoading(false);
+        });
+
+        return () => {
+            if (unsubscribe) unsubscribe();
+        };
+    }, [user?.uid]);
 
     return <div className={cx("warehouse", {
         [className]: className
@@ -54,15 +65,16 @@ function Warehouse({ className }) {
             {loading ?
             <div className={cx("loading")}></div> :
             <div className={cx("content")}>
-                {current.length == 0 ?
+                {current?.length === 0 ?
                 <div className={cx("no-results")}>Không có đoạn chat nào</div>
                     :
-                current.map((item) => (
+                current?.map((item) => (
                     <ChatItem
                         key={item.id}
                         id ={item.id}
                         images={item.images}
                         user={item.user}
+                        senderName={item.senderName}
                         content={item.content}
                         time={item.time}
                         check={item.check}

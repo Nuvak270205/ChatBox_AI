@@ -2,22 +2,41 @@ import classNames from "classnames/bind";
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import { motion } from "framer-motion";
 import { Mail, Lock, LogIn } from "lucide-react";
 
 import styles from "./Login.module.scss";
 import Button from "../../components/Button";
+import { login } from "~/services/auth";
+import { setAuthUser } from "~/store/authSlice";
 
 const cx = classNames.bind(styles);
 
 function Login({ className }) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Handle login logic here
-        console.log("Login:", { email, password });
+
+        setLoading(true);
+        setError("");
+
+        try {
+            const authResult = await login(email, password);
+            dispatch(setAuthUser(authResult));
+            navigate("/dashboard");
+        } catch (loginError) {
+            setError(loginError?.message || "Đăng nhập thất bại");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -36,6 +55,16 @@ function Login({ className }) {
                 >
                     Đăng Nhập
                 </motion.h2>
+                {error && (
+                    <motion.p
+                        className={cx("error")}
+                        initial={{ opacity: 0, y: -8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        style={{ color: "#ff6b6b", marginBottom: 16, textAlign: "center" }}
+                    >
+                        {error}
+                    </motion.p>
+                )}
                 <form onSubmit={handleSubmit} className={cx("form")}>
                     <motion.div
                         className={cx("input-group")}
@@ -82,9 +111,9 @@ function Login({ className }) {
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.5, duration: 0.5 }}
                     >
-                        <Button primary large className={cx("submit-btn")}>
+                        <Button primary large className={cx("submit-btn")} disablesd={loading}>
                             <LogIn size={18} className={cx("btn-icon")} />
-                            Đăng Nhập
+                            {loading ? "Đang đăng nhập..." : "Đăng Nhập"}
                         </Button>
                     </motion.div>
                 </form>

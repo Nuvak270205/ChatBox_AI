@@ -7,7 +7,24 @@ import PropTypes from 'prop-types';
 import {ArrowDownRight, ArrowUpLeft, EllipsisVertical, Laugh, MessageSquareShare, File, Paperclip, CornerDownLeft} from 'lucide-react';
 import styles from './ChatBox.module.scss';
 const cx = classNames.bind(styles);
+
+function formatFileSize(sizeInBytes) {
+    if (!sizeInBytes || Number.isNaN(Number(sizeInBytes))) {
+        return "0 KB";
+    }
+
+    const size = Number(sizeInBytes);
+
+    if (size < 1024 * 1024) {
+        return `${Math.max(1, Math.round(size / 1024))} KB`;
+    }
+
+    return `${(size / (1024 * 1024)).toFixed(2)} MB`;
+}
+
 function ChatBox({ className, id, time, name, content, content_image, titlefile, sizefile, arrUser = [], status = null, left, normal, right, first, center, last, image, rep, rep_name, rep_content, Rep_Icon, rep_image, rep_file, forward, group, Icon, onClick }) {
+    const ReplyIconComponent = Rep_Icon || MessageSquareShare;
+
     const formattedTime = useMemo(() => {
         if (!time) return "";
 
@@ -76,12 +93,12 @@ function ChatBox({ className, id, time, name, content, content_image, titlefile,
                 rep ?
                     (<div className={cx('reply')}>
                         <div className={cx('reply-box', {rep_image, rep_file})}>
-                            {rep_content ? rep_content : rep_image ? <img src={rep_image} alt="image" /> : rep_file ? (
+                            {rep_content ? rep_content : rep_file ? (
                                 <div className={cx('file')}>
                                    File đính kèm 
                                    <Paperclip />
                                 </div>
-                            ) : <Rep_Icon className={cx({right})} />}
+                            ) : rep_image ? <img src={rep_image} alt="image" /> : <ReplyIconComponent className={cx({right})} />}
                         </div>
                     </div>)
                 : null
@@ -148,8 +165,13 @@ function ChatBox({ className, id, time, name, content, content_image, titlefile,
                                 </div>
                                 <div className={cx('file-info')}>
                                     <div className={cx('file-name')}>{titlefile}</div>
-                                    <div className={cx('file-size')}>{(sizefile / (1024 * 1024)).toFixed(2)} MB</div>
+                                    <div className={cx('file-size')}>{formatFileSize(sizefile)}</div>
                                 </div>
+                                {content_image ? (
+                                    <a className={cx('file-download')} href={content_image} target="_blank" rel="noopener noreferrer">
+                                        Tải
+                                    </a>
+                                ) : null}
                             </div>)
                          :
                         Icon ? <Icon /> : content_image ? <Image src={content_image} alt="Content Image" /> : content

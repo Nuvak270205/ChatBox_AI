@@ -1,10 +1,11 @@
 import classNames from "classnames/bind";
 import {useParams} from "react-router-dom";
 import React, { useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
 import {ProfileItem}  from "~/components/ProfileItem/index.jsx";
 import ChatItem from "~/components/ChatItem/index.jsx";
+import { listenToOpendingChatItems, listenToSpamChatItems } from "~/services/chat";
 import PropTypes from "prop-types";
-import { arrContent, arrContent1 } from "~/data";
 import { Pencil } from "lucide-react";
 import styles from "./Mgs_waiting.module.scss";
 
@@ -12,6 +13,7 @@ const cx = classNames.bind(styles);
 
 function Mgs_waiting({ className }) {
     const { chatId } = useParams();
+    const user = useSelector((state) => state.auth.user);
     const [page, setPage] = useState(1);
     const [currentData, setCurrentData] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -36,14 +38,27 @@ function Mgs_waiting({ className }) {
     }, []);
 
     useEffect(() => {
-        setLoading(true);
-        const timer = setTimeout(() => {
-            setCurrentData(page === 1 ? arrContent : arrContent1);
+        if (!user?.uid) {
             setLoading(false);
-        }, 1200);
+            return;
+        }
 
-        return () => clearTimeout(timer);
-    }, [page]);
+        setLoading(true);
+
+        const unsubscribe = page === 1 
+            ? listenToOpendingChatItems(user.uid, (data) => {
+                setCurrentData(data);
+                setLoading(false);
+            })
+            : listenToSpamChatItems(user.uid, (data) => {
+                setCurrentData(data);
+                setLoading(false);
+            });
+
+        return () => {
+            if (unsubscribe) unsubscribe();
+        };
+    }, [page, user?.uid]);
 
     return <div className={cx("mgs_waiting", {
         [className]: className
@@ -71,7 +86,7 @@ function Mgs_waiting({ className }) {
         <div ref={bodyRef} className={cx("body")}>
             <div className={cx("content")}>
                 {loading && <div className={cx("loading")}></div>}
-                {!loading && currentData.length == 0 ?
+                {!loading && currentData?.length === 0 ?
                 <div className={cx("no-results")}>Không có đoạn chat nào</div>
                 :currentData?.map((item) => (
                     <ChatItem 
@@ -79,6 +94,7 @@ function Mgs_waiting({ className }) {
                         id={item.id}
                         images={item.images}
                         user={item.user}
+                        senderName={item.senderName}
                         content={item.content}
                         time={item.time}
                         check={item.check}
