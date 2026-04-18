@@ -153,20 +153,22 @@
                 display: flex;
                 align-items: center;
                 gap: 12px;
+                padding: 8px;
 
                 .file-icon{
-                    width: 40px;
-                    height: 40px;
-                    border-radius: 6px;
+                    width: 36px;
+                    height: 36px;
+                    border-radius: 50%;
                     background-color: rgba($color: #000000, $alpha: 0.1);
                     display: flex;
                     align-items: center;
                     justify-content: center;
+                    background-color: rgba($color: #0084ff, $alpha: 0.12);
 
                     svg{
-                        width: 20px;
-                        height: 20px;
-                        color: rgba($color: #000000, $alpha: 0.5);
+                        width: 16px;
+                        height: 16px;
+                        color: rgba($color: #0084ff, $alpha: 0.5);
                     }
                 }
 
@@ -174,11 +176,13 @@
                     display: flex;
                     flex-direction: column;
                     min-width: 0;
+                    gap: 4px;
 
                     .file-name{
-                        font-size: 14px;
+                        font-size: 16px;
                         color: rgba($color: #000000, $alpha: 0.8);
                         white-space: nowrap;
+                        font-weight: 600;
                         overflow: hidden;
                         text-overflow: ellipsis;
                         max-width: 220px;
@@ -186,7 +190,7 @@
 
                     .file-size{
                         font-size: 12px;
-                        font-weight: bold;
+                        font-weight: 500;
                         color: rgba($color: #000000, $alpha: 0.5);
                     }
                 }

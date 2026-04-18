@@ -3,64 +3,19 @@ import PropTypes from "prop-types";
 import React, {useState, useEffect} from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { collection, query, orderBy, limit, getDocs, getDoc, doc, onSnapshot, updateDoc } from "firebase/firestore";
-import { db } from "~/config";
 import Image from "~/components/Image/index.jsx";
 import Button from "~/components/Button/index.jsx";
 import { InforItem } from "~/data";
-import { ChevronRight, ChevronDown, ChevronLeft, Lock, Facebook, Bell, BellOff, Search, Download} from "lucide-react";
+import { ChevronRight, ChevronDown, ChevronLeft, Lock, Facebook, Bell, BellOff, Search, Download, File} from "lucide-react";
+import {
+    getInformationMediaAndFiles,
+    listenToInformationChatInfo,
+    toggleInformationNotification,
+} from "~/services/information.js";
+import { downloadFileFromUrl } from "~/utils/download.js";
 import styles from "./Information.module.scss";
 
 const cx = classNames.bind(styles);
-
-async function fetchUserDetailsMap(userIds) {
-    if (!userIds || userIds.length === 0) {
-        return {};
-    }
-
-    const userDetailsMap = {};
-
-    await Promise.all(userIds.map(async (userId) => {
-        try {
-            const userSnap = await getDoc(doc(db, "users", userId));
-
-            if (userSnap.exists()) {
-                userDetailsMap[userId] = userSnap.data();
-            }
-        } catch (error) {
-            // Ignore missing users here.
-        }
-    }));
-
-    return userDetailsMap;
-}
-
-function mergeMemberInfo(cachedMemberInfo, freshUserData) {
-    const merged = { ...cachedMemberInfo };
-
-    Object.entries(freshUserData).forEach(([userId, userData]) => {
-        merged[userId] = {
-            ...merged[userId],
-            name: userData.name || userData.displayName || merged[userId]?.name || userId,
-            avatar: userData.avatar || userData.avatarUrl || userData.photoURL || merged[userId]?.avatar || "",
-            displayName: userData.displayName || merged[userId]?.displayName,
-        };
-    });
-
-    return merged;
-}
-
-function buildCurrentUserMemberInfo(existingMemberInfo, userData, userId, userProfile) {
-    const currentMemberInfo = existingMemberInfo?.[userId] || {};
-
-    return {
-        ...currentMemberInfo,
-        name: userData?.name || userData?.displayName || currentMemberInfo.name || userProfile?.displayName || userProfile?.name || userId,
-        avatar: userData?.avatar || userData?.avatarUrl || userData?.photoURL || currentMemberInfo.avatar || userProfile?.avatar || userProfile?.avatarUrl || userProfile?.photoURL || "",
-        displayName: userData?.displayName || currentMemberInfo.displayName || userProfile?.displayName || "",
-    };
-}
-
 
 function Information({className}) {
     const user = useSelector((state) => state.auth.user);
@@ -78,55 +33,15 @@ function Information({className}) {
             return;
         }
 
-        const chatRef = doc(db, "chatbox", chatId);
-
-        const unsubscribe = onSnapshot(chatRef, (chatSnapshot) => {
-            if (!chatSnapshot.exists()) {
-                setChatInfo(null);
-                return;
-            }
-
-            const chatData = chatSnapshot.data();
-            const memberInfo = chatData.memberInfo || {};
-            const otherMembers = (chatData.members || []).filter((memberId) => memberId !== user?.uid);
-
-            fetchUserDetailsMap(otherMembers).then((freshUserData) => {
-                const enrichedMemberInfo = mergeMemberInfo(memberInfo, freshUserData);
-                const currentUserInfo = buildCurrentUserMemberInfo(memberInfo, null, user?.uid, user);
-                const existingCurrentUserInfo = memberInfo[user?.uid] || {};
-                const shouldSyncCurrentUser =
-                    existingCurrentUserInfo.name !== currentUserInfo.name ||
-                    existingCurrentUserInfo.avatar !== currentUserInfo.avatar ||
-                    existingCurrentUserInfo.displayName !== currentUserInfo.displayName;
-
-                if (shouldSyncCurrentUser) {
-                    updateDoc(chatRef, {
-                        [`memberInfo.${user.uid}`]: currentUserInfo,
-                    }).catch((error) => {
-                        console.error("Failed to sync current user memberInfo:", error);
-                    });
-                }
-
-                const isMuted = Boolean(enrichedMemberInfo[user?.uid]?.bell);
-                const otherMemberNames = otherMembers
-                    .map((memberId) => enrichedMemberInfo[memberId]?.name || enrichedMemberInfo[memberId]?.displayName || memberId)
-                    .filter(Boolean);
-                const otherMemberAvatars = otherMembers
-                    .map((memberId) => enrichedMemberInfo[memberId]?.avatar || enrichedMemberInfo[memberId]?.avatarUrl || enrichedMemberInfo[memberId]?.photoURL || "")
-                    .filter(Boolean);
-
-                setChatInfo({
-                    name: chatData.name || chatData.title || otherMemberNames.join(", ") || "Unknown",
-                    subname: chatData.subname || chatData.description || (otherMemberNames.length > 1 ? `${otherMemberNames.length} thành viên` : (otherMemberNames[0] || "")),
-                    images: otherMemberAvatars,
-                    memberInfo: enrichedMemberInfo,
-                    isMuted,
-                });
-            });
+        const unsubscribe = listenToInformationChatInfo({
+            chatId,
+            user,
+            onUpdate: setChatInfo,
+            onMissing: () => setChatInfo(null),
         });
 
         return unsubscribe;
-    }, [chatId, user?.uid]);
+    }, [chatId, user]);
 
     const handleToggleNotification = async () => {
         if (!chatId || !user?.uid) {
@@ -147,9 +62,10 @@ function Information({className}) {
         });
 
         try {
-            const chatRef = doc(db, "chatbox", chatId);
-            await updateDoc(chatRef, {
-                [`memberInfo.${user.uid}.bell`]: nextMuted,
+            await toggleInformationNotification({
+                chatId,
+                userId: user.uid,
+                muted: nextMuted,
             });
         } catch (error) {
             console.error("Failed to toggle notification state:", error);
@@ -173,42 +89,9 @@ function Information({className}) {
         const fetchMediaAndFiles = async () => {
             try {
                 setLoading(true);
-                const messagesQuery = query(
-                    collection(db, "chatbox", chatId, "messages"),
-                    orderBy("createAt", "desc"),
-                    limit(500)
-                );
-
-                const messagesSnapshot = await getDocs(messagesQuery);
-                const imageList = [];
-                const fileList = [];
-
-                messagesSnapshot.docs.forEach((doc) => {
-                    const msgData = doc.data();
-                    
-                    // Lọc images
-                    if (msgData.content_image && msgData.type !== "file") {
-                        imageList.push({
-                            id: doc.id,
-                            url: msgData.content_image,
-                            createAt: msgData.createAt,
-                        });
-                    }
-
-                    // Lọc files
-                    if (msgData.titlefile && msgData.type === "file") {
-                        fileList.push({
-                            id: doc.id,
-                            name: msgData.titlefile,
-                            url: msgData.content_image,
-                            size: msgData.sizefile || 0,
-                            createAt: msgData.createAt,
-                        });
-                    }
-                });
-
-                setImages(imageList);
-                setFiles(fileList);
+                const result = await getInformationMediaAndFiles({ chatId });
+                setImages(result.images);
+                setFiles(result.files);
             } catch (error) {
                 console.error("Failed to fetch media and files:", error);
             } finally {
@@ -225,6 +108,11 @@ function Information({className}) {
 
     const handleBackClick = () => {
         setPage([]);
+    };
+
+    const handleDownloadFile = async (event, fileUrl, fileName) => {
+        event.preventDefault();
+        await downloadFileFromUrl(fileUrl, fileName);
     };
 
     return (
@@ -323,7 +211,7 @@ function Information({className}) {
                                 <div key={file.id} className={cx("file-item")}>
                                     <div className={cx("file-info")}>
                                         <div className={cx("file-icon")}>
-                                            <Download size={20} />
+                                            <File size={20} />
                                         </div>
                                         <div className={cx("file-details")}>
                                             <p className={cx("file-name")}>{file.name}</p>
@@ -332,15 +220,14 @@ function Information({className}) {
                                             </p>
                                         </div>
                                     </div>
-                                    <a 
-                                        href={file.url} 
-                                        download={file.name}
+                                    <button
+                                        type="button"
                                         className={cx("download-link")}
-                                        target="_blank"
-                                        rel="noreferrer"
+                                        onClick={(event) => handleDownloadFile(event, file.url, file.name)}
+                                        aria-label={`Tai xuong ${file.name}`}
                                     >
-                                        Tải xuống
-                                    </a>
+                                        <Download size={20} />
+                                    </button>
                                 </div>
                             ))}
                         </div>

@@ -3,6 +3,7 @@ import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 
 import { auth, db } from "~/config";
 
+// Lấy hồ sơ người dùng theo uid từ Firestore.
 async function fetchUserProfile(uid) {
     const userRef = doc(db, "users", uid);
     const userSnap = await getDoc(userRef);
@@ -17,6 +18,7 @@ async function fetchUserProfile(uid) {
     };
 }
 
+// Đăng nhập bằng email/password và trả về token cùng thông tin user.
 async function login(email, password) {
     const credential = await signInWithEmailAndPassword(auth, email, password);
     const firebaseUser = credential.user;
@@ -34,6 +36,7 @@ async function login(email, password) {
     };
 }
 
+// Đăng ký tài khoản mới, đồng thời khởi tạo hồ sơ user trong Firestore.
 async function register({ name, email, password }) {
     const credential = await createUserWithEmailAndPassword(auth, email, password);
     const firebaseUser = credential.user;
@@ -60,10 +63,12 @@ async function register({ name, email, password }) {
     };
 }
 
+// Đăng xuất tài khoản hiện tại.
 async function logout() {
     await signOut(auth);
 }
 
+// Cập nhật username cho người dùng.
 async function updateUsername(uid, username) {
     if (!uid) {
         throw new Error("Thiếu user id");

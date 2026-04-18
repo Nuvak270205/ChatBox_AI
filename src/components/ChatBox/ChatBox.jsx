@@ -5,6 +5,7 @@ import Image from '~/components/Image/index.jsx';
 import 'tippy.js/dist/tippy.css';
 import PropTypes from 'prop-types';
 import {ArrowDownRight, ArrowUpLeft, EllipsisVertical, Laugh, MessageSquareShare, File, Paperclip, CornerDownLeft, Download} from 'lucide-react';
+import { downloadFileFromUrl } from '~/utils/download.js';
 import styles from './ChatBox.module.scss';
 const cx = classNames.bind(styles);
 
@@ -24,6 +25,11 @@ function formatFileSize(sizeInBytes) {
 
 function ChatBox({ className, id, time, name, content, content_image, titlefile, sizefile, arrUser = [], status = null, left, normal, right, first, center, last, image, rep, rep_name, rep_content, Rep_Icon, rep_image, rep_file, forward, group, Icon, onClick }) {
     const ReplyIconComponent = Rep_Icon || MessageSquareShare;
+
+    const handleDownloadFile = async (event) => {
+        event.preventDefault();
+        await downloadFileFromUrl(content_image, titlefile || "download");
+    };
 
     const formattedTime = useMemo(() => {
         if (!time) return "";
@@ -168,15 +174,15 @@ function ChatBox({ className, id, time, name, content, content_image, titlefile,
                                     <div className={cx('file-size')}>{formatFileSize(sizefile)}</div>
                                 </div>
                                 {content_image ? (
-                                    <a
+                                    <button
+                                        type="button"
+                                        style={{padding:"0px", margin:"0px", border:"none"}}
                                         className={cx('file-download')}
-                                        href={content_image}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        aria-label={`Tải xuống ${titlefile}`}
+                                        aria-label={`Tai xuong ${titlefile || "file"}`}
+                                        onClick={handleDownloadFile}
                                     >
                                         <Download />
-                                    </a>
+                                    </button>
                                 ) : null}
                             </div>)
                          :

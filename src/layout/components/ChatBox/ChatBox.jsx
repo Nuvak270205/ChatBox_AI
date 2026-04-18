@@ -2,69 +2,26 @@ import classNames from "classnames/bind";
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { collection, doc, getDoc, limit, onSnapshot, orderBy, query, addDoc, serverTimestamp, updateDoc } from "firebase/firestore";
 import PropTypes from "prop-types";
 import Tippy from "@tippyjs/react";
 import 'tippy.js/dist/tippy.css';
 import Chat from "~/components/ChatBox/index.jsx";
 import Image from "~/components/Image/index.jsx";
 import Time  from "~/components/Time/index.jsx";
-import { db } from "~/config";
 import { Phone, Video, Info, Mic, Image as Img, Sticker, Smile, ThumbsUp, FolderGit, X, Loader, SendHorizontal } from "lucide-react";
 import EmojiPicker from "emoji-picker-react";
 import { uploadImage, uploadFile } from "~/services/upload.js";
+import {
+    listenToChatboxDetail,
+    listenToChatboxMessages,
+    markChatboxAsRead,
+    sendChatboxMessage,
+    sendChatboxThumbsUp,
+} from "~/services/chatbox.js";
 
 import styles from "./ChatBox.module.scss";
 
 const cx = classNames.bind(styles);
-
-async function fetchUserDetailsMap(userIds) {
-    if (!userIds || userIds.length === 0) {
-        return {};
-    }
-
-    const userDetailsMap = {};
-
-    await Promise.all(userIds.map(async (userId) => {
-        try {
-            const userSnap = await getDoc(doc(db, "users", userId));
-
-            if (userSnap.exists()) {
-                userDetailsMap[userId] = userSnap.data();
-            }
-        } catch (error) {
-            // Ignore missing users here.
-        }
-    }));
-
-    return userDetailsMap;
-}
-
-function mergeMemberInfo(cachedMemberInfo, freshUserData) {
-    const merged = { ...cachedMemberInfo };
-
-    Object.entries(freshUserData).forEach(([userId, userData]) => {
-        merged[userId] = {
-            ...merged[userId],
-            name: userData.name || userData.displayName || merged[userId]?.name || userId,
-            avatar: userData.avatar || userData.avatarUrl || userData.photoURL || merged[userId]?.avatar || "",
-            displayName: userData.displayName || merged[userId]?.displayName,
-        };
-    });
-
-    return merged;
-}
-
-function buildCurrentUserMemberInfo(existingMemberInfo, userData, userId, userProfile) {
-    const currentMemberInfo = existingMemberInfo?.[userId] || {};
-
-    return {
-        ...currentMemberInfo,
-        name: userData?.name || userData?.displayName || currentMemberInfo.name || userProfile?.displayName || userProfile?.name || userId,
-        avatar: userData?.avatar || userData?.avatarUrl || userData?.photoURL || currentMemberInfo.avatar || userProfile?.avatar || userProfile?.avatarUrl || userProfile?.photoURL || "",
-        displayName: userData?.displayName || currentMemberInfo.displayName || userProfile?.displayName || "",
-    };
-}
 
 function ChatBox({ className, onClick }) {
     // biến state
@@ -86,34 +43,6 @@ function ChatBox({ className, onClick }) {
     const inputFileRef = useRef(null);
     const inputImageRef = useRef(null);
 
-    const buildLastMessagePreview = (content = "", type = "normal", attachmentData = null, isReply = false) => {
-        if (type === "icon") {
-            return "👍";
-        }
-        if (attachmentData?.url) {
-            if (type === "file") {
-                return "Đã gửi một file";
-            }
-            return "Đã gửi một hình ảnh";
-        }
-        if (isReply && !content.trim()) {
-            return "Đã trả lời một tin nhắn";
-        }
-        return content.trim() || "Tin nhắn";
-    };
-
-    const updateChatSummary = async (preview) => {
-        if (!chatId || !user?.uid) return;
-
-        const chatRef = doc(db, "chatbox", chatId);
-        await updateDoc(chatRef, {
-            lastMessage: preview,
-            lastMessageAt: serverTimestamp(),
-            lastSenderId: user.uid,
-            [`lastRead.${user.uid}`]: serverTimestamp(),
-        });
-    };
-
     //ham xử lý
     const handleSendMessage = async (content = "", type = "normal", attachmentData = null) => {
         try {
@@ -122,38 +51,15 @@ function ChatBox({ className, onClick }) {
             }
 
             setIsSending(true);
-
-            const messageRef = collection(db, "chatbox", chatId, "messages");
             const replyId = rep || null;
-            const messageData = {
-                senderId: user.uid,
-                content: content.trim(),
-                createAt: serverTimestamp(),
-                status: "Đã gửi",
-                type: replyId ? "reply" : type,
-            };
-
-            // Add attachment data if exists
-            if (attachmentData) {
-                if (type === "image" || type === "image") {
-                    messageData.content_image = attachmentData.url;
-                } else if (type === "file") {
-                    messageData.titlefile = attachmentData.name;
-                    messageData.sizefile = attachmentData.size;
-                    messageData.content_image = attachmentData.url;
-                }
-            }
-
-            // Add reply reference if replying
-            if (replyId) {
-                messageData.rep = replyId;
-                messageData.replyToId = replyId;
-                messageData.replyType = type;
-            }
-
-            await addDoc(messageRef, messageData);
-            const lastMessagePreview = buildLastMessagePreview(content, type, attachmentData, Boolean(replyId));
-            await updateChatSummary(lastMessagePreview);
+            await sendChatboxMessage({
+                chatId,
+                userId: user.uid,
+                content,
+                type,
+                attachmentData,
+                replyId,
+            });
 
             // Clear input
             if (inputRef.current) {
@@ -167,30 +73,6 @@ function ChatBox({ className, onClick }) {
         } finally {
             setIsSending(false);
         }
-    };
-
-    const syncCurrentUserMemberInfo = async (chatData) => {
-        if (!chatId || !user?.uid || !chatData) {
-            return;
-        }
-
-        const freshUserData = await fetchUserDetailsMap([user.uid]);
-        const currentMemberInfo = chatData.memberInfo || {};
-        const nextCurrentUserInfo = buildCurrentUserMemberInfo(currentMemberInfo, freshUserData[user.uid], user.uid, user);
-        const existingCurrentUserInfo = currentMemberInfo[user.uid] || {};
-        const shouldUpdate =
-            existingCurrentUserInfo.name !== nextCurrentUserInfo.name ||
-            existingCurrentUserInfo.avatar !== nextCurrentUserInfo.avatar ||
-            existingCurrentUserInfo.displayName !== nextCurrentUserInfo.displayName;
-
-        if (!shouldUpdate) {
-            return;
-        }
-
-        const chatRef = doc(db, "chatbox", chatId);
-        await updateDoc(chatRef, {
-            [`memberInfo.${user.uid}`]: nextCurrentUserInfo,
-        });
     };
 
     const handleImageSelect = async (e) => {
@@ -241,26 +123,17 @@ function ChatBox({ className, onClick }) {
 
     const handleSendThumbsUp = async () => {
         try {
-            setIsSending(true);
-            const messageRef = collection(db, "chatbox", chatId, "messages");
-            const replyId = rep || null;
-            const messageData = {
-                senderId: user.uid,
-                content: "",
-                createAt: serverTimestamp(),
-                status: "Đã gửi",
-                type: replyId ? "reply" : "icon",
-                Icon: "ThumbsUp",
-            };
-
-            if (replyId) {
-                messageData.rep = replyId;
-                messageData.replyToId = replyId;
-                messageData.replyType = "icon";
+            if (!chatId || !user?.uid) {
+                return;
             }
 
-            await addDoc(messageRef, messageData);
-            await updateChatSummary("👍");
+            setIsSending(true);
+            const replyId = rep || null;
+            await sendChatboxThumbsUp({
+                chatId,
+                userId: user.uid,
+                replyId,
+            });
             setRep(null);
         } catch (error) {
             console.error("Send thumbs up failed:", error);
@@ -377,9 +250,9 @@ function ChatBox({ className, onClick }) {
         // Update lastRead timestamp when entering the chat
         const updateLastRead = async () => {
             try {
-                const chatRef = doc(db, "chatbox", chatId);
-                await updateDoc(chatRef, {
-                    [`lastRead.${user.uid}`]: serverTimestamp(),
+                await markChatboxAsRead({
+                    chatId,
+                    userId: user.uid,
                 });
             } catch (error) {
                 console.error("Failed to update lastRead:", error);
@@ -389,64 +262,32 @@ function ChatBox({ className, onClick }) {
         // Call update immediately
         updateLastRead();
 
-        const chatRef = doc(db, "chatbox", chatId);
-        const unsubscribeChat = onSnapshot(chatRef, (chatSnapshot) => {
-            if (!chatSnapshot.exists()) {
-                setCurrentChatData(null);
-                setLoading(false);
-                return;
-            }
-
-            (async () => {
-                const chatData = chatSnapshot.data();
-                const memberInfo = chatData.memberInfo || {};
-                const memberIds = chatData.members || [];
-                const freshUserData = await fetchUserDetailsMap(memberIds);
-                const enrichedMemberInfo = mergeMemberInfo(memberInfo, freshUserData);
-                const otherMembers = memberIds.filter((memberId) => memberId !== user.uid);
-                const otherMemberNames = otherMembers.map((memberId) => enrichedMemberInfo[memberId]?.name || enrichedMemberInfo[memberId]?.displayName || memberId);
-
-                await syncCurrentUserMemberInfo(chatData);
-
+        const unsubscribeChat = listenToChatboxDetail({
+            chatId,
+            user,
+            onUpdate: (chatData) => {
                 setCurrentChatData((prev) => ({
                     ...(prev || {}),
-                    id: chatSnapshot.id,
-                    members: memberIds,
-                    memberInfo: enrichedMemberInfo,
-                    lastRead: chatData.lastRead || {},
-                    images: otherMembers.map((memberId) => enrichedMemberInfo[memberId]?.avatar || "").filter(Boolean),
-                    user: otherMemberNames.join(", ") || "Unknown",
+                    ...chatData,
                 }));
                 setLoading(false);
-            })();
+            },
+            onMissing: () => {
+                setCurrentChatData(null);
+                setLoading(false);
+            },
         });
 
-        const messagesQuery = query(
-            collection(db, "chatbox", chatId, "messages"),
-            orderBy("createAt", "asc"),
-            limit(200)
-        );
-
-        const unsubscribeMessages = onSnapshot(messagesQuery, (messagesSnapshot) => {
-            const nextMessages = messagesSnapshot.docs.map((msgDoc) => {
-                const msgData = msgDoc.data();
-                return {
-                    id: msgDoc.id,
-                    id_user: msgData.senderId,
-                    content: msgData.content || "",
-                    content_image: msgData.content_image || "",
-                    titlefile: msgData.titlefile || "",
-                    sizefile: msgData.sizefile || 0,
-                    time: msgData.createAt?.toDate?.() || new Date(0),
-                    status: msgData.status || "Đã gửi",
-                    arrUser: msgData.type === "forward" ? [msgData.senderId] : [],
-                    type: msgData.type || "normal",
-                    rep: msgData.rep || msgData.replyToId || null,
-                    Icon: msgData.type === "icon" ? ThumbsUp : null,
-                };
-            });
-
-            setMessages(nextMessages);
+        const unsubscribeMessages = listenToChatboxMessages({
+            chatId,
+            onUpdate: (nextMessages) => {
+                setMessages(
+                    nextMessages.map((message) => ({
+                        ...message,
+                        Icon: message.type === "icon" ? ThumbsUp : null,
+                    }))
+                );
+            },
         });
 
         return () => {
@@ -475,9 +316,9 @@ function ChatBox({ className, onClick }) {
                     if (!latestMessage || latestMessage.id_user === user.uid) {
                         return;
                     }
-                    const chatRef = doc(db, "chatbox", chatId);
-                    await updateDoc(chatRef, {
-                        [`lastRead.${user.uid}`]: serverTimestamp(),
+                    await markChatboxAsRead({
+                        chatId,
+                        userId: user.uid,
                     });
                 } catch (error) {
                     console.error("Failed to update lastRead on new messages:", error);
