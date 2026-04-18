@@ -1,9 +1,10 @@
 import axios from "axios";
 
-// Cloudinary configuration - configure these in your .env file
+// Cấu hình Cloudinary, có thể ghi đè bằng biến môi trường trong file .env.
 const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || "dpnza0kof";
 const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || "chatbox_ai";
 
+// Tạo URL upload Cloudinary theo loại tài nguyên.
 function getCloudinaryUrl(resourceType = "image") {
   const normalizedType = resourceType === "raw" ? "raw" : "image";
 
@@ -11,10 +12,10 @@ function getCloudinaryUrl(resourceType = "image") {
 }
 
 /**
- * Upload file to Cloudinary
- * @param {File} file - File to upload
- * @param {string} resourceType - 'image', 'video', 'raw', or 'auto'
- * @returns {Promise<string>} - URL of uploaded file
+ * Upload file lên Cloudinary.
+ * @param {File} file - File cần upload.
+ * @param {string} resourceType - 'image', 'video', 'raw' hoặc 'auto'.
+ * @returns {Promise<string>} - URL của file sau khi upload.
  */
 export const uploadToCloudinary = async (file, resourceType = "auto") => {
   try {
@@ -37,7 +38,7 @@ export const uploadToCloudinary = async (file, resourceType = "auto") => {
         type: response.data.type,
       };
     }
-    throw new Error("No URL returned from upload");
+    throw new Error("Upload thành công nhưng không nhận được URL trả về");
   } catch (error) {
     const status = error?.response?.status;
     if (status === 401) {
@@ -49,33 +50,33 @@ export const uploadToCloudinary = async (file, resourceType = "auto") => {
       throw new Error(cloudinaryMessage || "Cloudinary trả về 400. Kiểm tra preset, loại file, hoặc endpoint upload");
     }
 
-    console.error("Upload to Cloudinary failed:", error);
+    console.error("Upload file lên Cloudinary thất bại:", error);
     throw error;
   }
 };
 
 /**
- * Upload image file
- * @param {File} file - Image file to upload
+ * Upload file ảnh.
+ * @param {File} file - File ảnh cần upload.
  * @returns {Promise<{url: string, publicId: string}>}
  */
 export const uploadImage = (file) => {
   if (!file.type.startsWith("image/")) {
-    throw new Error("File must be an image");
+    throw new Error("File phải là ảnh");
   }
   return uploadToCloudinary(file, "image");
 };
 
 /**
- * Upload document file
- * @param {File} file - Document file to upload (PDF, DOC, XLS, etc.)
+ * Upload file tài liệu.
+ * @param {File} file - File tài liệu cần upload (PDF, DOC, XLS, ...).
  * @returns {Promise<{url: string, publicId: string, size: number}>}
  */
 export const uploadFile = (file) => {
   const allowedTypes = ["application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "text/plain"];
   
   if (!allowedTypes.includes(file.type)) {
-    throw new Error("File type not supported");
+    throw new Error("Định dạng file chưa được hỗ trợ");
   }
   
   return uploadToCloudinary(file, "raw");

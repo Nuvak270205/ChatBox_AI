@@ -2,6 +2,7 @@ import { collectionGroup, getDoc, getDocs } from "firebase/firestore";
 
 import { db } from "~/config";
 
+// Lấy toàn bộ bản ghi member khớp với userId trong các group.
 async function getMemberSnapshotsByUserId(userId) {
     const allMembers = await getDocs(collectionGroup(db, "members"));
 
@@ -14,6 +15,7 @@ async function getMemberSnapshotsByUserId(userId) {
     return matchingDocs;
 }
 
+// Lấy danh sách group mà user hiện tại đang tham gia.
 async function getUserGroups(userId) {
     if (!userId) {
         return [];

@@ -2,6 +2,7 @@ import { collection, getDocs, query, where, getDoc, doc, orderBy, limit, onSnaps
 
 import { db } from "~/config";
 
+// Chuẩn hóa timestamp Firestore hoặc giá trị ngày về kiểu Date của JavaScript.
 function toDateValue(value) {
     if (!value) return null;
     if (typeof value?.toDate === "function") return value.toDate();
@@ -9,6 +10,7 @@ function toDateValue(value) {
     return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
 
+// Lấy thông tin user và trả về dạng map theo userId.
 async function fetchUserDetailsMap(userIds) {
     if (!userIds || userIds.length === 0) {
         return {};
@@ -27,7 +29,7 @@ async function fetchUserDetailsMap(userIds) {
                     userDetailsMap[userId] = userSnap.data();
                 }
             } catch (error) {
-                // Ignore missing user documents.
+                // Bỏ qua trường hợp không tìm thấy document user.
             }
         })
     );
@@ -35,6 +37,7 @@ async function fetchUserDetailsMap(userIds) {
     return userDetailsMap;
 }
 
+// Gộp memberInfo đang có với dữ liệu hồ sơ user mới nhất.
 function enrichMemberInfo(cachedMemberInfo, freshUserData) {
     const enriched = { ...cachedMemberInfo };
 
@@ -50,6 +53,7 @@ function enrichMemberInfo(cachedMemberInfo, freshUserData) {
     return enriched;
 }
 
+// Xác định tên hiển thị của người gửi tin nhắn gần nhất.
 function getLastSenderName(chatData, memberInfo, userId, latestMessage) {
     const lastSenderId = chatData.lastSenderId || latestMessage?.id_user;
 
@@ -64,6 +68,7 @@ function getLastSenderName(chatData, memberInfo, userId, latestMessage) {
     return memberInfo[lastSenderId]?.name || memberInfo[lastSenderId]?.displayName || lastSenderId;
 }
 
+// Tạo trạng thái đã xem cho UI dựa trên tin nhắn mới nhất và lastRead.
 function getReadReceiptState({ messages, chatData, userId, memberInfo }) {
     const latestMessage = messages[messages.length - 1];
 
@@ -99,6 +104,7 @@ function getReadReceiptState({ messages, chatData, userId, memberInfo }) {
     };
 }
 
+// Chuyển document chat thành dữ liệu hiển thị cho UI.
 async function buildChatItem(chatDoc, userId) {
     const chatData = chatDoc.data();
     const memberInfo = chatData.memberInfo || {};
@@ -132,7 +138,7 @@ async function buildChatItem(chatDoc, userId) {
             });
         });
     } catch (error) {
-        // Ignore missing message subcollections.
+        // Bỏ qua trường hợp chat chưa có subcollection messages.
     }
 
     const otherMembers = (chatData.members || []).filter((memberId) => memberId !== userId);
@@ -161,70 +167,12 @@ async function buildChatItem(chatDoc, userId) {
     };
 }
 
-async function getActiveChatItems(userId) {
-    if (!userId) return [];
-
-    const chatsQuery = query(
-        collection(db, "chatbox"),
-        where("status", "==", "active"),
-        where("members", "array-contains", userId)
-    );
-
-    const chatsSnapshot = await getDocs(chatsQuery);
-    const chatItems = await Promise.all(chatsSnapshot.docs.map((chatDoc) => buildChatItem(chatDoc, userId)));
-
-    return chatItems.sort((a, b) => b.time - a.time);
-}
-
-async function getMarketChatItems(userId) {
-    if (!userId) return [];
-
-    const chatsQuery = query(
-        collection(db, "chatbox"),
-        where("status", "==", "market"),
-        where("members", "array-contains", userId)
-    );
-
-    const chatsSnapshot = await getDocs(chatsQuery);
-    const chatItems = await Promise.all(chatsSnapshot.docs.map((chatDoc) => buildChatItem(chatDoc, userId)));
-
-    return chatItems.sort((a, b) => b.time - a.time);
-}
-
-async function getOpendingChatItems(userId) {
-    if (!userId) return [];
-
-    const chatsQuery = query(
-        collection(db, "chatbox"),
-        where("status", "==", "pending"),
-        where("members", "array-contains", userId)
-    );
-
-    const chatsSnapshot = await getDocs(chatsQuery);
-    const chatItems = await Promise.all(chatsSnapshot.docs.map((chatDoc) => buildChatItem(chatDoc, userId)));
-
-    return chatItems.sort((a, b) => b.time - a.time);
-}
-
-async function getSpamChatItems(userId) {
-    if (!userId) return [];
-
-    const chatsQuery = query(
-        collection(db, "chatbox"),
-        where("status", "==", "spam"),
-        where("members", "array-contains", userId)
-    );
-
-    const chatsSnapshot = await getDocs(chatsQuery);
-    const chatItems = await Promise.all(chatsSnapshot.docs.map((chatDoc) => buildChatItem(chatDoc, userId)));
-
-    return chatItems.sort((a, b) => b.time - a.time);
-}
-
+// Dùng chung hàm build để giữ mapping dữ liệu chat nhất quán.
 async function processChatData(chatDoc, userId) {
     return buildChatItem(chatDoc, userId);
 }
 
+// Lắng nghe realtime chat theo status và trả danh sách đã chuẩn hóa/sắp xếp.
 function listenToChatItems(status, userId, onUpdate) {
     if (!userId) {
         return () => {};
@@ -250,26 +198,32 @@ function listenToChatItems(status, userId, onUpdate) {
     return unsubscribe;
 }
 
+// Danh sách realtime các chat đang hoạt động của user hiện tại.
 function listenToActiveChatItems(userId, onUpdate) {
     return listenToChatItems("active", userId, onUpdate);
 }
 
+// Danh sách realtime các chat marketplace của user hiện tại.
 function listenToMarketChatItems(userId, onUpdate) {
     return listenToChatItems("market", userId, onUpdate);
 }
 
+// Danh sách realtime các chat chờ duyệt của user hiện tại.
 function listenToOpendingChatItems(userId, onUpdate) {
     return listenToChatItems("pending", userId, onUpdate);
 }
 
+// Danh sách realtime các chat spam của user hiện tại.
 function listenToSpamChatItems(userId, onUpdate) {
     return listenToChatItems("spam", userId, onUpdate);
 }
 
+// Danh sách realtime các chat đã lưu trữ của user hiện tại.
 function listenToArchivedChatItems(userId, onUpdate) {
     return listenToChatItems("archived", userId, onUpdate);
 }
 
+// Danh sách realtime chat kênh theo group id.
 function listenToChannelChatsByGroupId(groupId, userId, onUpdate) {
     if (!groupId || !userId) {
         return () => {};
@@ -300,10 +254,6 @@ function listenToChannelChatsByGroupId(groupId, userId, onUpdate) {
 }
 
 export {
-    getActiveChatItems,
-    getMarketChatItems,
-    getOpendingChatItems,
-    getSpamChatItems,
     listenToActiveChatItems,
     listenToMarketChatItems,
     listenToOpendingChatItems,

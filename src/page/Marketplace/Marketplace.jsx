@@ -3,7 +3,7 @@ import {useParams} from "react-router-dom";
 import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import ChatItem from "~/components/ChatItem/index.jsx";
-import { getMarketChatItems, listenToMarketChatItems } from "~/services/chat";
+import { listenToMarketChatItems } from "~/services/chat";
 import PropTypes from "prop-types";
 
 import styles from "./Marketplace.module.scss";
