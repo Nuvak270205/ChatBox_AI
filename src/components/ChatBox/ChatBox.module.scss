@@ -416,7 +416,6 @@
         justify-content: flex-end;
         gap: 8px;
         margin-top: 2px;
-        margin-bottom: 4px;
 
         .status{
             font-size: 12px;
@@ -427,6 +426,7 @@
         .users{
             display: flex;
             gap: 4px;
+            margin-bottom: 4px;
 
             .user{
                 img{
