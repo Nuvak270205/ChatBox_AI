@@ -188,12 +188,8 @@ function ChatBox({ className, onClick }) {
         }
 
         const list = visibleMessages;
+        const latestMessage = list[list.length - 1];
         const latestOutgoingMessage = [...list].reverse().find((msg) => msg.id_user === user.uid);
-
-        if (!latestOutgoingMessage) {
-            return { latestOutgoingMessageId: null, avatarMap: {} };
-        }
-
         const avatarMap = {};
 
         (currentChatData.members || [])
@@ -205,24 +201,22 @@ function ChatBox({ className, onClick }) {
                     return;
                 }
 
-                const nearestReadOutgoingMessage = [...list].reverse().find((msg) => {
-                    if (msg.id_user !== user.uid) {
-                        return false;
-                    }
+                // Tìm tin nhắn gần nhất từ bất kỳ ai được đọc bởi member này
+                const nearestReadMessage = [...list].reverse().find((msg) => {
                     const messageDate = msg.time instanceof Date ? msg.time : new Date(msg.time);
                     return messageDate <= lastReadDate;
                 });
 
-                if (!nearestReadOutgoingMessage) {
+                if (!nearestReadMessage) {
                     return;
                 }
 
                 const avatar = currentChatData.memberInfo?.[memberId]?.avatar || "";
-                if (!avatarMap[nearestReadOutgoingMessage.id]) {
-                    avatarMap[nearestReadOutgoingMessage.id] = [];
+                if (!avatarMap[nearestReadMessage.id]) {
+                    avatarMap[nearestReadMessage.id] = [];
                 }
                 if (avatar) {
-                    avatarMap[nearestReadOutgoingMessage.id].push(avatar);
+                    avatarMap[nearestReadMessage.id].push(avatar);
                 }
             });
 
@@ -231,10 +225,11 @@ function ChatBox({ className, onClick }) {
         });
 
         return {
-            latestOutgoingMessageId: latestOutgoingMessage.id,
+            latestMessageId: latestMessage?.id || null,
+            latestOutgoingMessageId: latestOutgoingMessage?.id || null,
             avatarMap,
         };
-    }, [currentChatData, user?.uid]);
+    }, [currentChatData, user?.uid, visibleMessages]);
 
     useEffect(() => {
         if (!chatId || !user?.uid) {
@@ -500,8 +495,11 @@ function ChatBox({ className, onClick }) {
                             if (!isFirst && !isCenter && !isLast){
                                 isNormal = true;
                             }
+                            const readerAvatars = readReceiptByMessage.avatarMap[item.id] || [];
                             const isLatestOutgoing = isCurrentUser && item.id === readReceiptByMessage.latestOutgoingMessageId;
-                            const readerAvatars = isCurrentUser ? (readReceiptByMessage.avatarMap[item.id] || []) : [];
+                            const shouldShowStatus =
+                                isLatestOutgoing &&
+                                readReceiptByMessage.latestMessageId === readReceiptByMessage.latestOutgoingMessageId;
 
                             return (
                                 <div key={index}>
@@ -514,7 +512,7 @@ function ChatBox({ className, onClick }) {
                                     sizefile={item.sizefile}
                                     time={item.time}
                                     arrUser={readerAvatars}
-                                    status={isLatestOutgoing && readerAvatars.length === 0 ? item.status : null}
+                                    status={shouldShowStatus && readerAvatars.length === 0 ? item.status : null}
                                     left={!isCurrentUser}
                                     right={isCurrentUser}
                                     normal={isNormal}

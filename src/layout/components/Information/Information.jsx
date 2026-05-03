@@ -239,7 +239,6 @@ function Information({className}) {
                 {page.length === 0 ? result.map((item, index) => (
                     <div key={index}>
                         <Button key={`btn-${index}`} rightIcon={item.right_icon} className={cx("information__function-item")} onClick={() => {
-                            console.log("clicked");
                             item.right_icon === ChevronRight ? 
                             setResult(prev => prev.map((infor, idx) => {
                                 if (index === idx) {

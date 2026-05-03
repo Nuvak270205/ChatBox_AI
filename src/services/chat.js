@@ -81,22 +81,25 @@ function getReadReceiptState({ messages, chatData, userId, memberInfo }) {
         return { check: false, imageSub: "" };
     }
 
+    const senderId = latestMessage.id_user;
+    const members = chatData.members || [];
     const lastReadMap = chatData.lastRead || {};
-
-    if (latestMessage.id_user !== userId) {
-        const myLastRead = toDateValue(lastReadMap[userId]);
-        return {
-            check: Boolean(myLastRead && myLastRead >= latestMessageTime),
-            imageSub: "",
-        };
-    }
-
-    const readerId = (chatData.members || [])
-        .filter((memberId) => memberId !== userId)
-        .find((memberId) => {
+    const readerIds = members
+        .filter((memberId) => memberId !== senderId)
+        .filter((memberId) => {
             const memberLastRead = toDateValue(lastReadMap[memberId]);
             return Boolean(memberLastRead && memberLastRead >= latestMessageTime);
         });
+
+    if (senderId !== userId) {
+        const prioritizedReaderId = readerIds.find((memberId) => memberId !== userId) || readerIds[0] || "";
+        return {
+            check: readerIds.length > 0,
+            imageSub: prioritizedReaderId ? memberInfo[prioritizedReaderId]?.avatar || "" : "",
+        };
+    }
+
+    const readerId = readerIds[0] || "";
 
     return {
         check: true,
@@ -160,7 +163,7 @@ async function buildChatItem(chatDoc, userId) {
         content: chatData.lastMessage || latestMessage?.content || "No message",
         time: chatData.lastMessageAt?.toDate?.() || latestMessage?.time || new Date(0),
         bell: Boolean(userMemberInfo.bell),
-        imageSub: readReceiptState.imageSub || enrichedMemberInfo[chatData.lastSenderId]?.avatar || "",
+        imageSub: readReceiptState.imageSub,
         check: readReceiptState.check,
         senderName: getLastSenderName(chatData, enrichedMemberInfo, userId, latestMessage),
         data_Message: messages,
