@@ -11,7 +11,7 @@ const cx = classNames.bind(styles);
 const AI_UID = "hSVzmwx9FEQfbY0L5TxbCXbti3W2";
 const AI_NAME = "AI Giải Đáp";
 
-function ChatItem({ className, id, images, user, content, time, check = false, bell = false, imageSub = "", senderName = "", onClick, active }) {
+function ChatItem({ className, id, images, user, content, time, check = false, bell = false, imageSub = "", senderName = "", onClick, active, addfiend , onBack}) {
 
     const timeRef = useRef(null);
     const navigate = useNavigate();
@@ -47,22 +47,28 @@ function ChatItem({ className, id, images, user, content, time, check = false, b
     }, [time]);
 
     return (
-        <div className={cx("chat-item", { [className]: className , active })} onClick={
-            () => {
-                if (onClick) onClick();
-                const parts = location.pathname.split("/").filter(Boolean);
-                if (params.chatId) {
-                    parts[parts.length - 1] = id;
-                } 
-                // nếu chưa có chatId → thêm vào cuối
-                else {
-                    parts.push(id);
-                }
+        <div className={cx("chat-item", { [className]: className , active })} onClick={() => {
+            if (onClick) onClick();
 
-                navigate("/" + parts.join("/"));
-                window.document.title = `${user} | ChatBox AI`;
+            if (addfiend) {
+                if (onBack) {
+                    onBack();
+                }
+                return;
             }
-        }>
+
+            const parts = location.pathname.split("/").filter(Boolean);
+            if (params.chatId) {
+                parts[parts.length - 1] = id;
+            } 
+            // nếu chưa có chatId → thêm vào cuối
+            else {
+                parts.push(id);
+            }
+
+            navigate("/" + parts.join("/"));
+            window.document.title = `${user} | ChatBox AI`;
+        }}>
             <div className={cx("avatar", { "avatar--multiple": validImages.length === 1 })}>
                 {validImages.length === 1 ? 
                     (<Image src={validImages[0]} alt={user} />):
@@ -75,26 +81,39 @@ function ChatItem({ className, id, images, user, content, time, check = false, b
             </div>
             <div className={cx("info")}>
                 <div className={cx("user")}>{user}</div>
-                <div className={cx("message-info-body")}>
-                    {check ? 
-                    (<span className={cx("content")}> 
-                        {previewName + ": " + content}
-                    </span>) :
-                    (<span className={cx("content", "check")}>
-                        {previewName + ": " + content}
-                    </span>)}
-                    <span className={cx("time")} ref={timeRef}></span>
-                </div>
+                {
+                    addfiend ? null :
+                    (
+                    <div className={cx("message-info-body")}>
+                        {check ? 
+                        (<span className={cx("content")}> 
+                            {previewName + ": " + content}
+                        </span>) :
+                        (<span className={cx("content", "check")}>
+                            {previewName + ": " + content}
+                        </span>)}
+                        <span className={cx("time")} ref={timeRef}></span>
+                    </div>
+                    )
+                }
             </div>
-            <div className={cx("check__avatar")}>
-            {bell ? (
-                <BellOff className={cx("icon")} />
-            ) : check && imageSub ? (
-                <div className={cx("sub__avatar")}>
-                    <Image src={imageSub} alt={user} />
-                </div>
-            ) : null}
-            </div>
+            { addfiend ? (
+                    <div className={cx("create_friend")} onClick={onBack}>
+                        <span className={cx("new__text")}>Kết bạn</span>
+                    </div>
+                ) :
+                    <div className={cx("check__avatar")}>
+                        {
+                        bell ? (
+                            <BellOff className={cx("icon")} />
+                        ) : check && imageSub ? (
+                            <div className={cx("sub__avatar")}>
+                                <Image src={imageSub} alt={user} />
+                            </div>
+                        ) : null
+                        }
+                    </div>
+                }
         </div>
     );
 }
@@ -112,6 +131,8 @@ ChatItem.propTypes = {
     senderName: PropTypes.string,
     onClick: PropTypes.func,
     active: PropTypes.bool,
+    addfiend: PropTypes.bool,
+    onBack: PropTypes.func,
 };
 
 export default ChatItem;

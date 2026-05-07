@@ -1,4 +1,4 @@
-import { collection, getDocs, query, where, getDoc, doc, orderBy, limit, onSnapshot } from "firebase/firestore";
+import { addDoc, collection, getDocs, query, where, getDoc, doc, orderBy, limit, onSnapshot, serverTimestamp, setDoc } from "firebase/firestore";
 
 import { db } from "~/config";
 
@@ -12,6 +12,214 @@ function toDateValue(value) {
     if (typeof value?.toDate === "function") return value.toDate();
     const parsed = new Date(value);
     return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+// Lấy thông tin user theo email.
+async function findUserByEmail(email) {
+    const trimmedEmail = email?.trim();
+
+    if (!trimmedEmail) {
+        return null;
+    }
+
+    const searchValues = trimmedEmail.toLowerCase() === trimmedEmail
+        ? [trimmedEmail]
+        : [trimmedEmail, trimmedEmail.toLowerCase()];
+
+    const queryFields = ["email", "username"];
+
+    for (const field of queryFields) {
+        for (const searchValue of searchValues) {
+            const usersQuery = query(
+                collection(db, "users"),
+                where(field, "==", searchValue),
+                limit(1)
+            );
+
+            const usersSnapshot = await getDocs(usersQuery);
+
+            if (usersSnapshot.empty) {
+                continue;
+            }
+
+            const userDoc = usersSnapshot.docs[0];
+
+            return {
+                uid: userDoc.id,
+                ...userDoc.data(),
+            };
+        }
+    }
+
+    const allUsersSnapshot = await getDocs(collection(db, "users"));
+    const normalizedEmail = trimmedEmail.toLowerCase();
+    const matchedUserDoc = allUsersSnapshot.docs.find((userDoc) => {
+        const userEmail = userDoc.data()?.email;
+        const userNameField = userDoc.data()?.username;
+        const normalizedUserEmail = typeof userEmail === "string" ? userEmail.trim().toLowerCase() : "";
+        const normalizedUserName = typeof userNameField === "string" ? userNameField.trim().toLowerCase() : "";
+        return normalizedUserEmail === normalizedEmail || normalizedUserName === normalizedEmail;
+    });
+
+    if (matchedUserDoc) {
+        return {
+            uid: matchedUserDoc.id,
+            ...matchedUserDoc.data(),
+        };
+    }
+
+    return null;
+}
+
+// Tìm cuộc chat riêng 1-1 giữa 2 người dùng.
+async function findDirectChatBetweenUsers(currentUserId, targetUserId) {
+    if (!currentUserId || !targetUserId) {
+        return null;
+    }
+
+    const chatsSnapshot = await getDocs(
+        query(
+            collection(db, "chatbox"),
+            where("members", "array-contains", currentUserId)
+        )
+    );
+
+    return (
+        chatsSnapshot.docs.find((chatDoc) => {
+            const chatData = chatDoc.data();
+            return (
+                chatData?.type === "normal" &&
+                Array.isArray(chatData?.members) &&
+                chatData.members.length === 2 &&
+                chatData.members.includes(targetUserId)
+            );
+        }) || null
+    );
+}
+
+// Tìm cuộc chat riêng 1-1 theo email của thành viên còn lại.
+async function findDirectChatByOtherMemberEmail(currentUserId, email) {
+    const normalizedEmail = email?.trim().toLowerCase();
+
+    if (!currentUserId || !normalizedEmail) {
+        return null;
+    }
+
+    const chatsSnapshot = await getDocs(
+        query(
+            collection(db, "chatbox"),
+            where("members", "array-contains", currentUserId)
+        )
+    );
+
+    for (const chatDoc of chatsSnapshot.docs) {
+        const chatData = chatDoc.data();
+        const members = chatData?.members || [];
+
+        if (chatData?.type !== "normal" || members.length !== 2) {
+            continue;
+        }
+
+        const otherMemberId = members.find((memberId) => memberId !== currentUserId);
+        if (!otherMemberId) {
+            continue;
+        }
+
+        try {
+            // Try reading user doc first
+            const otherUserSnap = await getDoc(doc(db, "users", otherMemberId));
+            const otherUserData = otherUserSnap.exists() ? otherUserSnap.data() : null;
+
+            const otherUserEmail = otherUserData?.email;
+            const otherUserName = otherUserData?.username;
+            const normalizedOtherEmail = typeof otherUserEmail === "string" ? otherUserEmail.trim().toLowerCase() : "";
+            const normalizedOtherUsername = typeof otherUserName === "string" ? otherUserName.trim().toLowerCase() : "";
+
+            if (normalizedOtherEmail === normalizedEmail || normalizedOtherUsername === normalizedEmail) {
+                return {
+                    chatId: chatDoc.id,
+                    targetUser: {
+                        uid: otherMemberId,
+                        ...(otherUserData || {}),
+                    },
+                };
+            }
+
+            // Fallback: inspect memberInfo inside chat document for name/username/email
+            const memberInfo = chatData.memberInfo || {};
+            const otherInfo = memberInfo[otherMemberId] || {};
+            const infoEmail = otherInfo.email || otherInfo.name || otherInfo.displayName || otherInfo.username || "";
+            if (typeof infoEmail === "string" && infoEmail.trim().toLowerCase() === normalizedEmail) {
+                return {
+                    chatId: chatDoc.id,
+                    targetUser: {
+                        uid: otherMemberId,
+                        ...otherInfo,
+                    },
+                };
+            }
+        } catch (error) {
+            // Ignore errors and continue checking other chats
+        }
+    }
+
+    return null;
+}
+
+// Tạo hoặc lấy cuộc chat riêng 1-1 giữa 2 người dùng.
+async function createOrOpenDirectChat({ currentUser, targetUser }) {
+    if (!currentUser?.uid || !targetUser?.uid) {
+        return null;
+    }
+
+    const existingChat = await findDirectChatBetweenUsers(currentUser.uid, targetUser.uid);
+    if (existingChat) {
+        return existingChat.id;
+    }
+
+    // Use deterministic chatId for direct chats to avoid race-created duplicates.
+    const ids = [currentUser.uid, targetUser.uid].sort();
+    const deterministicId = `d_${ids.join("_")}`;
+
+    const chatRef = doc(db, "chatbox", deterministicId);
+    const chatSnap = await getDoc(chatRef);
+    if (chatSnap.exists()) {
+        return chatSnap.id;
+    }
+    const currentMemberInfo = {
+        name: currentUser.name || currentUser.displayName || currentUser.email || currentUser.uid,
+        avatar: currentUser.avatar || currentUser.avatarUrl || currentUser.photoURL || "",
+        displayName: currentUser.displayName || "",
+        bell: false,
+    };
+
+    const targetMemberInfo = {
+        name: targetUser.name || targetUser.displayName || targetUser.email || targetUser.uid,
+        avatar: targetUser.avatar || targetUser.avatarUrl || targetUser.photoURL || "",
+        displayName: targetUser.displayName || "",
+        bell: false,
+    };
+
+    const chatData = {
+        type: "normal",
+        status: "active",
+        members: [currentUser.uid, targetUser.uid],
+        memberInfo: {
+            [currentUser.uid]: currentMemberInfo,
+            [targetUser.uid]: targetMemberInfo,
+        },
+        lastMessage: "",
+        lastMessageAt: serverTimestamp(),
+        lastSenderId: "",
+        lastRead: {
+            [currentUser.uid]: serverTimestamp(),
+            [targetUser.uid]: serverTimestamp(),
+        },
+    };
+
+    await setDoc(chatRef, chatData, { merge: false });
+
+    return chatRef.id;
 }
 
 // Lấy thông tin user và trả về dạng map theo userId.
@@ -265,6 +473,10 @@ function listenToChannelChatsByGroupId(groupId, userId, onUpdate) {
 }
 
 export {
+    findUserByEmail,
+    findDirectChatBetweenUsers,
+    findDirectChatByOtherMemberEmail,
+    createOrOpenDirectChat,
     listenToActiveChatItems,
     listenToMarketChatItems,
     listenToOpendingChatItems,

@@ -44,6 +44,7 @@ async function register({ name, email, password }) {
 
     const userData = {
         uid: firebaseUser.uid,
+        avater: "https://res.cloudinary.com/dpnza0kof/image/upload/v1761197706/vtdgumwes11xmnsxgt1u.jpg",
         name,
         email,
         createdAt: new Date().toISOString(),

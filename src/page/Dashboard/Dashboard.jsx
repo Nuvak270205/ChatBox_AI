@@ -7,7 +7,13 @@ import {ProfileItem}  from "~/components/ProfileItem/index.jsx";
 import Search from "~/components/Search/index.jsx";
 import ChatItem from "~/components/ChatItem/index.jsx";
 import { Pencil } from "lucide-react";
-import { listenToActiveChatItems } from "~/services/chat";
+import {
+    createOrOpenDirectChat,
+    findDirectChatBetweenUsers,
+    findDirectChatByOtherMemberEmail,
+    findUserByEmail,
+    listenToActiveChatItems,
+} from "~/services/chat";
 import styles from "./Dasboard.module.scss";
 
 const cx = classNames.bind(styles);
@@ -24,7 +30,10 @@ function Dashboard({ className }) {
     const [searchTerm, setSearchTerm] = useState("");
     const [isFocused, setIsFocused] = useState(false);
     const [isActive, setIsActive] = useState(chatId || null);
+    const [directSearchItem, setDirectSearchItem] = useState(null);
+    const [isCreatingDirectChat, setIsCreatingDirectChat] = useState(false);
     const bodyRef = useRef(null);
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     // Effect để xử lý sự kiện scroll và thay đổi border-top của content
     useEffect(() => {
@@ -69,6 +78,152 @@ function Dashboard({ className }) {
     }, [chatId]);
 
     useEffect(() => {
+        let isCancelled = false;
+
+        async function resolveExactEmailSearch() {
+            const normalizedSearchTerm = searchTerm.trim().toLowerCase();
+
+            if (!user?.uid || !emailPattern.test(normalizedSearchTerm)) {
+                setDirectSearchItem(null);
+                return;
+            }
+
+            const targetUser = await findUserByEmail(normalizedSearchTerm);
+
+            if (isCancelled) return;
+
+            if (targetUser) {
+                const existingChatDoc = await findDirectChatBetweenUsers(user.uid, targetUser.uid);
+
+                if (isCancelled) return;
+
+                if (existingChatDoc) {
+                    const existingDirectChat = current.find((item) => item.id === existingChatDoc.id);
+
+                    setDirectSearchItem({
+                        mode: "existing",
+                        item: existingDirectChat || {
+                            id: existingChatDoc.id,
+                            images: [targetUser.avatar || targetUser.avatarUrl || targetUser.photoURL || ""].filter(Boolean),
+                            user: targetUser.name || targetUser.displayName || targetUser.email || targetUser.uid,
+                            senderName: "",
+                            content: "Nhấn để mở đoạn chat",
+                            time: new Date(),
+                            check: true,
+                            bell: false,
+                            imageSub: "",
+                        },
+                    });
+
+                    if (chatId !== existingChatDoc.id) {
+                        setIsActive(existingChatDoc.id);
+                        navigate(`/dashboard/${existingChatDoc.id}`, { replace: true });
+                    }
+
+                    return;
+                }
+
+                setDirectSearchItem({
+                    mode: "create",
+                    targetUser,
+                    item: {
+                        id: targetUser.uid,
+                        images: [targetUser.avatar || targetUser.avatarUrl || targetUser.photoURL || ""].filter(Boolean),
+                        user: targetUser.name || targetUser.displayName || targetUser.email || targetUser.uid,
+                        content: "",
+                        time: new Date(),
+                        check: false,
+                        bell: false,
+                        imageSub: "",
+                        senderName: "",
+                        addfiend: true,
+                    },
+                });
+
+                return;
+            }
+
+            const existingByEmail = await findDirectChatByOtherMemberEmail(user.uid, normalizedSearchTerm);
+
+            if (isCancelled) {
+                return;
+            }
+
+            if (existingByEmail?.chatId) {
+                const existingDirectChat = current.find((item) => item.id === existingByEmail.chatId);
+                const fallbackTargetUser = existingByEmail.targetUser || {};
+
+                setDirectSearchItem({
+                    mode: "existing",
+                    item: existingDirectChat || {
+                        id: existingByEmail.chatId,
+                        images: [fallbackTargetUser.avatar || fallbackTargetUser.avatarUrl || fallbackTargetUser.photoURL || ""].filter(Boolean),
+                        user: fallbackTargetUser.name || fallbackTargetUser.displayName || fallbackTargetUser.email || normalizedSearchTerm,
+                        senderName: "",
+                        content: "Nhấn để mở đoạn chat",
+                        time: new Date(),
+                        check: true,
+                        bell: false,
+                        imageSub: "",
+                    },
+                });
+
+                if (chatId !== existingByEmail.chatId) {
+                    setIsActive(existingByEmail.chatId);
+                    navigate(`/dashboard/${existingByEmail.chatId}`, { replace: true });
+                }
+                return;
+            }
+
+            setDirectSearchItem(null);
+        }
+
+        resolveExactEmailSearch().catch(() => {
+            if (!isCancelled) {
+                setDirectSearchItem(null);
+            }
+        });
+
+        return () => {
+            isCancelled = true;
+        };
+    }, [searchTerm, user?.uid, current, chatId, navigate]);
+
+    const handleOpenOrCreateDirectChat = async (targetUser) => {
+        if (!user?.uid || !targetUser?.uid || isCreatingDirectChat) {
+            return;
+        }
+
+        setIsCreatingDirectChat(true);
+
+        try {
+            const chatIdResult = await createOrOpenDirectChat({
+                currentUser: user,
+                targetUser,
+            });
+
+            if (!chatIdResult) {
+                return;
+            }
+
+            setIsActive(chatIdResult);
+            navigate(`/dashboard/${chatIdResult}`, { replace: true });
+            setSearchTerm("");
+            setDirectSearchItem(null);
+        } finally {
+            setIsCreatingDirectChat(false);
+        }
+    };
+
+    const isExactEmailSearch = emailPattern.test(searchTerm.trim().toLowerCase());
+    const filteredChats = isExactEmailSearch
+        ? (directSearchItem ? [directSearchItem.item] : [])
+        : current.filter((item) => 
+            item.user.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            item.content.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+
+    useEffect(() => {
         if (loading || chatId || current.length === 0) {
             return;
         }
@@ -101,13 +256,9 @@ function Dashboard({ className }) {
             {loading ? 
             <div className={cx("loading")}></div> :
             <div className={cx("content")}>
-                {current.length == 0 ? 
+                {filteredChats.length == 0 ? 
                 <div className={cx("no-results")}>Không có đoạn chat nào</div>
-                : current
-                    .filter((item) => 
-                        item.user.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                        item.content.toLowerCase().includes(searchTerm.toLowerCase())
-                    )
+                : filteredChats
                     .map((item) => (
                     <ChatItem
                         key={item.id}
@@ -122,6 +273,12 @@ function Dashboard({ className }) {
                         imageSub={item.imageSub}
                         onClick={() => setIsActive(item.id)}
                         active={isActive === item.id}
+                        addfiend={Boolean(isExactEmailSearch && directSearchItem?.mode === "create")}
+                        onBack={
+                            isExactEmailSearch && directSearchItem?.mode === "create"
+                                ? () => handleOpenOrCreateDirectChat(directSearchItem.targetUser)
+                                : undefined
+                        }
                     />
                 ))}
             </div>}
