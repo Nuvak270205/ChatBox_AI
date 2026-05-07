@@ -2,6 +2,10 @@ import { collection, getDocs, query, where, getDoc, doc, orderBy, limit, onSnaps
 
 import { db } from "~/config";
 
+// Constant cho AI Chat
+const AI_UID = "hSVzmwx9FEQfbY0L5TxbCXbti3W2";
+const AI_NAME = "AI Giải Đáp";
+
 // Chuẩn hóa timestamp Firestore hoặc giá trị ngày về kiểu Date của JavaScript.
 function toDateValue(value) {
     if (!value) return null;
@@ -63,6 +67,10 @@ function getLastSenderName(chatData, memberInfo, userId, latestMessage) {
 
     if (lastSenderId === userId) {
         return "Bạn";
+    }
+
+    if (lastSenderId === AI_UID) {
+        return AI_NAME;
     }
 
     return memberInfo[lastSenderId]?.name || memberInfo[lastSenderId]?.displayName || lastSenderId;

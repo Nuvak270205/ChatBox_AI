@@ -7,7 +7,7 @@ import Tippy from "@tippyjs/react";
 import 'tippy.js/dist/tippy.css';
 import Chat from "~/components/ChatBox/index.jsx";
 import Image from "~/components/Image/index.jsx";
-import Time  from "~/components/Time/index.jsx";
+import Time from "~/components/Time/index.jsx";
 import { Phone, Video, Info, Mic, Image as Img, Sticker, Smile, ThumbsUp, FolderGit, X, Loader, SendHorizontal } from "lucide-react";
 import EmojiPicker from "emoji-picker-react";
 import { uploadImage, uploadFile } from "~/services/upload.js";
@@ -43,6 +43,40 @@ function ChatBox({ className, onClick }) {
     const inputFileRef = useRef(null);
     const inputImageRef = useRef(null);
 
+    //Tìm từ khoá @ để gọi AI
+    const regexAICall = /^@ai.+/;
+
+    // Constant cho AI Chat
+    const AI_UID = "hSVzmwx9FEQfbY0L5TxbCXbti3W2";
+    const AI_NAME = "AI Giải Đáp";
+    const AI_AVATAR = "https://static.vecteezy.com/system/resources/thumbnails/063/196/766/small/cute-teal-robot-character-mascot-with-smiling-face-on-isolated-background-png.png";
+
+    //Lấy dữ liệu từ AI
+    const handleSendPostAI = async (content) => {
+        try {
+            const response = await fetch("https://devdapi.vercel.app/api/ai-chat", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    message: content,
+                    apiKey: "0867424460"
+                })
+            });
+
+            const data = await response.json();
+
+            return data;
+
+        } catch (err) {
+            return {
+                success: false,
+                error: err.message
+            };
+        }
+    };
+
     //ham xử lý
     const handleSendMessage = async (content = "", type = "normal", attachmentData = null) => {
         try {
@@ -52,6 +86,7 @@ function ChatBox({ className, onClick }) {
 
             setIsSending(true);
             const replyId = rep || null;
+
             await sendChatboxMessage({
                 chatId,
                 userId: user.uid,
@@ -66,6 +101,28 @@ function ChatBox({ className, onClick }) {
                 inputRef.current.textContent = "";
                 setIsEmpty(true);
             }
+
+            if (regexAICall.test(content)) {
+                const cleaned = content.replace(/^@ai\s*/, "");
+
+                const result = await handleSendPostAI(cleaned);
+
+                const contentAI =
+                    result?.status === "ok"
+                        ? result?.data || "AI không trả về nội dung"
+                        : "Hãy hỏi lại AI sau 1 phút!";
+
+                await sendChatboxMessage({
+                    chatId,
+                    userId: "hSVzmwx9FEQfbY0L5TxbCXbti3W2",
+                    content: contentAI,
+                    type,
+                    attachmentData: null,
+                    replyId,
+                });
+            }
+
+
             setRep(null);
         } catch (error) {
             console.error("Send message failed:", error);
@@ -338,15 +395,15 @@ function ChatBox({ className, onClick }) {
         }
     }, [currentChatData, messages.length]);
 
-    useEffect(() =>{
-        const handleClickOutside = (e) =>{
-            if(emojiPickerRef.current?.contains(e.target)){
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (emojiPickerRef.current?.contains(e.target)) {
                 hanldeShowEmojiPicker();
             } else {
                 setShowEmojiPicker(false);
             }
         }
-        if(emojiPickerRef.current){
+        if (emojiPickerRef.current) {
             document.addEventListener("click", handleClickOutside);
         }
 
@@ -356,7 +413,7 @@ function ChatBox({ className, onClick }) {
     }, [])
 
     useEffect(() => {
-        if(inputRef.current){
+        if (inputRef.current) {
             inputRef.current.focus();
             const range = document.createRange();
             range.selectNodeContents(inputRef.current);
@@ -364,7 +421,7 @@ function ChatBox({ className, onClick }) {
 
             const selection = window.getSelection();
             selection.removeAllRanges();
-            selection.addRange(range);        
+            selection.addRange(range);
         }
     }, [showEmojiPicker]);
 
@@ -375,11 +432,11 @@ function ChatBox({ className, onClick }) {
         }
     }, []);
 
-    if (loading) {        
+    if (loading) {
         return (
-        <div className={cx("chat-box", { [className]: className })}>
-            <div className={cx("loading")}></div>
-        </div>)
+            <div className={cx("chat-box", { [className]: className })}>
+                <div className={cx("loading")}></div>
+            </div>)
     }
 
     if (!currentChatData) {
@@ -392,119 +449,119 @@ function ChatBox({ className, onClick }) {
 
     return (
         <div className={cx("chat-box", { [className]: className })}>
-                <div className={cx("header")}>
-                    <div className={cx("header-left")}>
-                        <div className={cx("header-image", {"avatar--multiple": headerImages.length === 1})}>
-                            {headerImages.length === 1 ? 
-                                (<Image src={headerImages[0]}/> ):
-                                (headerImages.map((image, index) => {
-                                    return <div className={cx("image", `image-${index}`)} key={index}>
-                                                <Image key={index} src={image} className={cx({"image-border": index === 0})}/>
-                                            </div>;
-                                    }))
-                                }
-                        </div>
-                        <div className={cx("header-title")}>
-                            <div className={cx("header-user")}>{currentChatData.user}</div>
-                        </div>
+            <div className={cx("header")}>
+                <div className={cx("header-left")}>
+                    <div className={cx("header-image", { "avatar--multiple": headerImages.length === 1 })}>
+                        {headerImages.length === 1 ?
+                            (<Image src={headerImages[0]} />) :
+                            (headerImages.map((image, index) => {
+                                return <div className={cx("image", `image-${index}`)} key={index}>
+                                    <Image key={index} src={image} className={cx({ "image-border": index === 0 })} />
+                                </div>;
+                            }))
+                        }
                     </div>
-                    <div className={cx("header-right")}>
-                        <div className={cx("icon")}>
-                            <Phone />
-                        </div>
-                        <div className={cx("icon")}>
-                            <Video />
-                        </div>
-                        <div 
-                            className={cx("icon")}
-                            onClick={onClick}
-                        >
-                            <Info />
-                        </div>
+                    <div className={cx("header-title")}>
+                        <div className={cx("header-user")}>{currentChatData.user}</div>
                     </div>
                 </div>
-                <div ref={bodyRef} className={cx("body")}>
-                    <div className={cx("body-overview")}>
-                        <div className={cx("body-image")}>
-                            <Image src={currentChatData.images[0]}/>
-                        </div>
-                        <div className={cx("body-user")}>{currentChatData.user}</div>
-                        <div className={cx("body-status")}>Tin nhắn và cuộc gọi được bảo mật bằng tính năng mã hóa đầu cuối. Chỉ những người tham gia đoạn chat này mới có thể đọc, nghe hoặc chia sẻ. </div>
+                <div className={cx("header-right")}>
+                    <div className={cx("icon")}>
+                        <Phone />
                     </div>
-                    <div className={cx("body-content")}>
-                        {visibleMessages.map((item, index, list) => {
-                            const isCurrentUser = item.id_user === user?.uid;
-                            let isTimeShow = false;
-                            let isFirst = false;
-                            let isCenter = false;
-                            let isLast = false;
-                            let isNormal = false;
-                            const isGroup = (currentChatData.members?.length || 0) > 2;
-                            const senderName = isCurrentUser ? "Bạn" : (currentChatData.memberInfo?.[item.id_user]?.name || currentChatData.memberInfo?.[item.id_user]?.displayName || "User");
-                            const senderAvatar = currentChatData.memberInfo?.[item.id_user]?.avatar || currentChatData.images[0] || false;
-                            const replyMessage = list.find((msg) => msg.id === item.rep);
-                            const isReplyMissing = item.type === "reply" && !replyMessage;
+                    <div className={cx("icon")}>
+                        <Video />
+                    </div>
+                    <div
+                        className={cx("icon")}
+                        onClick={onClick}
+                    >
+                        <Info />
+                    </div>
+                </div>
+            </div>
+            <div ref={bodyRef} className={cx("body")}>
+                <div className={cx("body-overview")}>
+                    <div className={cx("body-image")}>
+                        <Image src={currentChatData.images[0]} />
+                    </div>
+                    <div className={cx("body-user")}>{currentChatData.user}</div>
+                    <div className={cx("body-status")}>Tin nhắn và cuộc gọi được bảo mật bằng tính năng mã hóa đầu cuối. Chỉ những người tham gia đoạn chat này mới có thể đọc, nghe hoặc chia sẻ. </div>
+                </div>
+                <div className={cx("body-content")}>
+                    {visibleMessages.map((item, index, list) => {
+                        const isCurrentUser = item.id_user === user?.uid;
+                        let isTimeShow = false;
+                        let isFirst = false;
+                        let isCenter = false;
+                        let isLast = false;
+                        let isNormal = false;
+                        const isGroup = (currentChatData.members?.length || 0) > 2;
+                        const senderName = isCurrentUser ? "Bạn" : (item.id_user === AI_UID ? AI_NAME : (currentChatData.memberInfo?.[item.id_user]?.name || currentChatData.memberInfo?.[item.id_user]?.displayName || "User"));
+                        const senderAvatar = isCurrentUser ? false : (item.id_user === AI_UID ? AI_AVATAR : (currentChatData.memberInfo?.[item.id_user]?.avatar || currentChatData.images[0] || false));
+                        const replyMessage = list.find((msg) => msg.id === item.rep);
+                        const isReplyMissing = item.type === "reply" && !replyMessage;
 
-                            if (index === 0){
-                                isTimeShow = true;
-                            } else if(Date.parse(item.time) - Date.parse(list[index - 1].time) > 1800000){
-                                isTimeShow = true;
+                        if (index === 0) {
+                            isTimeShow = true;
+                        } else if (Date.parse(item.time) - Date.parse(list[index - 1].time) > 1800000) {
+                            isTimeShow = true;
+                        }
+                        if (index < list.length - 1 && list[index + 1].id_user === item.id_user
+                            && list[index + 1].type !== "forward" && list[index + 1].type !== "reply" && list[index + 1].type !== "icon"
+                            && (Date.parse(list[index + 1].time) - Date.parse(item.time) < 180000)
+                        ) {
+                            isFirst = true;
+                            if (item.type === "icon") {
+                                isFirst = false;
                             }
-                            if (index < list.length - 1 && list[index + 1].id_user === item.id_user
-                                && list[index + 1].type !== "forward" && list[index + 1].type !== "reply" && list[index + 1].type !== "icon"
-                                && (Date.parse(list[index + 1].time) - Date.parse(item.time) < 180000)
-                            ){
-                                isFirst = true;
-                                if(item.type === "icon"){
-                                    isFirst = false;
-                                }
-                                if(index !== 0 && list[index - 1].id_user === item.id_user
-                                    && item.type !== "forward" && item.type !== "reply" && list[index - 1].type !== "icon"
-                                    && (Date.parse(item.time) - Date.parse(list[index - 1].time) < 180000)
-                                ){
-                                    isFirst = false;
-                                }
-                            }
-                            if (index > 0 && index < list.length - 1 
-                                && (Date.parse(list[index + 1].time) - Date.parse(item.time) < 180000)
-                                && (Date.parse(item.time) - Date.parse(list[index - 1].time) < 180000)
-                                && item.type !== "forward"  && item.type !== "reply" && item.type !== "icon"
-                            ){
-                                if (list[index - 1].id_user === item.id_user && list[index + 1].id_user === item.id_user
-                                    && list[index + 1].type !== "forward" && list[index + 1].type !== "reply"
-                                    && list[index + 1].type !== "icon" && list[index - 1].type !== "icon"
-                                ){
-                                    isCenter = true;
-                                }
-                            } 
                             if (index !== 0 && list[index - 1].id_user === item.id_user
-                                && item.type !== "forward"  && item.type !== "reply" && item.type !== "icon"
-                                && list[index - 1].type !== "icon"
+                                && item.type !== "forward" && item.type !== "reply" && list[index - 1].type !== "icon"
                                 && (Date.parse(item.time) - Date.parse(list[index - 1].time) < 180000)
-                            ){   
-                                if(index === list.length - 1){
-                                    isLast = true;
-                                } else if (index < list.length - 1
-                                    && (item.id_user !== list[index + 1].id_user
+                            ) {
+                                isFirst = false;
+                            }
+                        }
+                        if (index > 0 && index < list.length - 1
+                            && (Date.parse(list[index + 1].time) - Date.parse(item.time) < 180000)
+                            && (Date.parse(item.time) - Date.parse(list[index - 1].time) < 180000)
+                            && item.type !== "forward" && item.type !== "reply" && item.type !== "icon"
+                        ) {
+                            if (list[index - 1].id_user === item.id_user && list[index + 1].id_user === item.id_user
+                                && list[index + 1].type !== "forward" && list[index + 1].type !== "reply"
+                                && list[index + 1].type !== "icon" && list[index - 1].type !== "icon"
+                            ) {
+                                isCenter = true;
+                            }
+                        }
+                        if (index !== 0 && list[index - 1].id_user === item.id_user
+                            && item.type !== "forward" && item.type !== "reply" && item.type !== "icon"
+                            && list[index - 1].type !== "icon"
+                            && (Date.parse(item.time) - Date.parse(list[index - 1].time) < 180000)
+                        ) {
+                            if (index === list.length - 1) {
+                                isLast = true;
+                            } else if (index < list.length - 1
+                                && (item.id_user !== list[index + 1].id_user
                                     || list[index + 1].type === "forward" || list[index + 1].type === "reply" || list[index + 1].type === "icon"
                                     || (Date.parse(list[index + 1].time) - Date.parse(item.time) >= 180000)
-                                    )){
-                                    isLast = true;
-                                }
+                                )) {
+                                isLast = true;
                             }
-                            if (!isFirst && !isCenter && !isLast){
-                                isNormal = true;
-                            }
-                            const readerAvatars = readReceiptByMessage.avatarMap[item.id] || [];
-                            const isLatestOutgoing = isCurrentUser && item.id === readReceiptByMessage.latestOutgoingMessageId;
-                            const shouldShowStatus =
-                                isLatestOutgoing &&
-                                readReceiptByMessage.latestMessageId === readReceiptByMessage.latestOutgoingMessageId;
+                        }
+                        if (!isFirst && !isCenter && !isLast) {
+                            isNormal = true;
+                        }
+                        const readerAvatars = readReceiptByMessage.avatarMap[item.id] || [];
+                        const isLatestOutgoing = isCurrentUser && item.id === readReceiptByMessage.latestOutgoingMessageId;
+                        const shouldShowStatus =
+                            isLatestOutgoing &&
+                            readReceiptByMessage.latestMessageId === readReceiptByMessage.latestOutgoingMessageId;
 
-                            return (
-                                <div key={index}>
-                                    {isTimeShow && <Time date={item.time} />}
-                                    <Chat
+                        return (
+                            <div key={index}>
+                                {isTimeShow && <Time date={item.time} />}
+                                <Chat
                                     content={item.content}
                                     id={item.id}
                                     content_image={item.content_image}
@@ -522,7 +579,7 @@ function ChatBox({ className, onClick }) {
                                     name={senderName}
                                     image={!isCurrentUser ? senderAvatar : false}
                                     rep={item.type === "reply" ? true : false}
-                                    rep_name={item.type === "reply" ? (replyMessage?.id_user === user?.uid ? (isCurrentUser ? "chính mình" : "bạn") : (replyMessage?.user || currentChatData.memberInfo?.[replyMessage?.id_user]?.name || currentChatData.memberInfo?.[replyMessage?.id_user]?.displayName || "User")) : ""}
+                                    rep_name={item.type === "reply" ? (replyMessage?.id_user === user?.uid ? (isCurrentUser ? "chính mình" : "bạn") : (replyMessage?.id_user === AI_UID ? AI_NAME : (replyMessage?.user || currentChatData.memberInfo?.[replyMessage?.id_user]?.name || currentChatData.memberInfo?.[replyMessage?.id_user]?.displayName || "User"))) : ""}
                                     rep_content={item.type === "reply" ? (isReplyMissing ? "Tin nhắn gốc không khả dụng" : (replyMessage?.content || "")) : ""}
                                     Rep_Icon={item.type === "reply" ? (replyMessage?.Icon || ThumbsUp) : null}
                                     rep_image={item.type === "reply" ? (replyMessage?.titlefile ? null : (replyMessage?.content_image || null)) : null}
@@ -531,128 +588,128 @@ function ChatBox({ className, onClick }) {
                                     group={isGroup}
                                     Icon={item.type === "icon" ? item.Icon : null}
                                     onClick={handleReply}
-                                    />
-                                </div>
-                            )
-                        })}
-                    </div>
-                </div>
-                <div className={cx("footer")}>
-                    {
-                        rep && currentChat && (
-                            <div className={cx("footer-rep")}>
-                                <div className={cx("footer-rep-content")}>
-                                    <div className={cx("footer-rep-title")}>Đang trả lời {currentChat.id_user === user?.uid ? "chính mình" : (currentChat.user || currentChatData.memberInfo?.[currentChat.id_user]?.name || currentChatData.memberInfo?.[currentChat.id_user]?.displayName || "bạn")}</div>
-                                    <div className={cx("footer-rep-text")}>{currentChat.titlefile ? "File đính kèm" : currentChat.content_image ? "Hình ảnh" : currentChat.content}</div>
-                                </div>
-                                <div className={cx("footer-rep-close")} onClick={() => setRep(null)}>
-                                    <X />
-                                </div>
+                                />
                             </div>
                         )
-                    }
-                    <div className={cx("footer_button")}>
-                        <div className={cx("footer-icon")}>
-                            <Tippy
-                                content={"Gửi clip âm thanh"}
-                                placement="top"
-                                delay={[300, 0]}
-                                interactive={true}
-                            >
-                                <div className={cx("icon")}>
-                                    <Mic />
-                                </div>
-                            </Tippy>
-                            <Tippy
-                                content={"Đính kèm file có kích thước tối đa 100MB"}
-                                placement="top"
-                                delay={[300, 0]}
-                                interactive={true}
-                            >
-                                <div className={cx("icon")} onClick={() => inputImageRef.current?.click()}>
-                                    <Img />
-                                    <input type="file" ref={inputImageRef} style={{display: "none"}} accept="image/*" onChange={handleImageSelect} disabled={isUploading}/>
-                                </div>
-                            </Tippy>
-                            <Tippy
-                                content={"Chọn nhãn dán"}
-                                placement="top"
-                                delay={[300, 0]}
-                                interactive={true}
-                            >
-                                <div className={cx("icon")} onClick={() => inputFileRef.current?.click()}>
-                                    <Sticker />
-                                    <input type="file" ref={inputFileRef} style={{display: "none"}} accept=".pdf,.doc,.docx,.xls,.xlsx,.txt" onChange={handleFileSelect} disabled={isUploading}/>
-                                </div>
-                            </Tippy>
-                            <Tippy
-                                content={"Chọn file GIF"}
-                                placement="top"
-                                delay={[300, 0]}
-                                interactive={true}
-                            >
-                                <div className={cx("icon")}>
-                                    <FolderGit />
-                                </div>
-                            </Tippy>
+                    })}
+                </div>
+            </div>
+            <div className={cx("footer")}>
+                {
+                    rep && currentChat && (
+                        <div className={cx("footer-rep")}>
+                            <div className={cx("footer-rep-content")}>
+                                <div className={cx("footer-rep-title")}>Đang trả lời {currentChat.id_user === user?.uid ? "chính mình" : (currentChat.id_user === AI_UID ? AI_NAME : (currentChat.user || currentChatData.memberInfo?.[currentChat.id_user]?.name || currentChatData.memberInfo?.[currentChat.id_user]?.displayName || "bạn"))}</div>
+                                <div className={cx("footer-rep-text")}>{currentChat.titlefile ? "File đính kèm" : currentChat.content_image ? "Hình ảnh" : currentChat.content}</div>
+                            </div>
+                            <div className={cx("footer-rep-close")} onClick={() => setRep(null)}>
+                                <X />
+                            </div>
                         </div>
-                        <div className={cx("footer-input")}>
-                            <div
-                                contentEditable="true"
-                                ref={inputRef}
-                                onInput={handleInput}
-                                onKeyDown={handleKeyDown}
-                                role="textbox"
-                                aria-multiline="true"
-                                data-placeholder="Aa"
-                                className={cx("input-area", { "is-empty": isEmpty })}
-                            />
+                    )
+                }
+                <div className={cx("footer_button")}>
+                    <div className={cx("footer-icon")}>
+                        <Tippy
+                            content={"Gửi clip âm thanh"}
+                            placement="top"
+                            delay={[300, 0]}
+                            interactive={true}
+                        >
+                            <div className={cx("icon")}>
+                                <Mic />
+                            </div>
+                        </Tippy>
+                        <Tippy
+                            content={"Đính kèm file có kích thước tối đa 100MB"}
+                            placement="top"
+                            delay={[300, 0]}
+                            interactive={true}
+                        >
+                            <div className={cx("icon")} onClick={() => inputImageRef.current?.click()}>
+                                <Img />
+                                <input type="file" ref={inputImageRef} style={{ display: "none" }} accept="image/*" onChange={handleImageSelect} disabled={isUploading} />
+                            </div>
+                        </Tippy>
+                        <Tippy
+                            content={"Chọn nhãn dán"}
+                            placement="top"
+                            delay={[300, 0]}
+                            interactive={true}
+                        >
+                            <div className={cx("icon")} onClick={() => inputFileRef.current?.click()}>
+                                <Sticker />
+                                <input type="file" ref={inputFileRef} style={{ display: "none" }} accept=".pdf,.doc,.docx,.xls,.xlsx,.txt" onChange={handleFileSelect} disabled={isUploading} />
+                            </div>
+                        </Tippy>
+                        <Tippy
+                            content={"Chọn file GIF"}
+                            placement="top"
+                            delay={[300, 0]}
+                            interactive={true}
+                        >
+                            <div className={cx("icon")}>
+                                <FolderGit />
+                            </div>
+                        </Tippy>
+                    </div>
+                    <div className={cx("footer-input")}>
+                        <div
+                            contentEditable="true"
+                            ref={inputRef}
+                            onInput={handleInput}
+                            onKeyDown={handleKeyDown}
+                            role="textbox"
+                            aria-multiline="true"
+                            data-placeholder="Aa"
+                            className={cx("input-area", { "is-empty": isEmpty })}
+                        />
+                        <Tippy
+                            content={"Chọn biểu tượng cảm xúc"}
+                            placement="top"
+                            delay={[300, 0]}
+                            interactive={true}
+                        >
+                            <div ref={emojiPickerRef} className={cx("icon")} onClick={hanldeShowEmojiPicker}>
+                                <Smile />
+                            </div>
+                        </Tippy>
+                        {
+                            showEmojiPicker && <EmojiPicker onEmojiClick={handleEmojiClick} className={cx("emoji-picker")} />
+                        }
+                    </div>
+                    <div className={cx("footer-actions")}>
+                        {isEmpty ? (
                             <Tippy
-                                content={"Chọn biểu tượng cảm xúc"}
+                                content={"Gửi thích"}
                                 placement="top"
                                 delay={[300, 0]}
                                 interactive={true}
                             >
-                                <div ref={emojiPickerRef} className={cx("icon")} onClick={hanldeShowEmojiPicker}>
-                                    <Smile />
+                                <div className={cx("icon")} onClick={handleSendThumbsUp} disabled={isSending}>
+                                    {isSending ? <Loader className={cx("spinner")} /> : <ThumbsUp />}
                                 </div>
                             </Tippy>
-                            {
-                                showEmojiPicker && <EmojiPicker onEmojiClick={handleEmojiClick} className={cx("emoji-picker")} />
-                            }
-                        </div>
-                        <div className={cx("footer-actions")}>
-                            {isEmpty ? (
-                                <Tippy
-                                    content={"Gửi thích"}
-                                    placement="top"
-                                    delay={[300, 0]}
-                                    interactive={true}
+                        ) : (
+                            <Tippy
+                                content={"Gửi (Enter)"}
+                                placement="top"
+                                delay={[300, 0]}
+                                interactive={true}
+                            >
+                                <div
+                                    className={cx("icon")}
+                                    onClick={() => handleSendMessage(inputRef.current?.textContent || "")}
+                                    style={{ cursor: isSending ? "not-allowed" : "pointer", opacity: isSending ? 0.6 : 1 }}
+                                    disabled={isSending}
                                 >
-                                    <div className={cx("icon")} onClick={handleSendThumbsUp} disabled={isSending}>
-                                        {isSending ? <Loader className={cx("spinner")} /> : <ThumbsUp />}
-                                    </div>
-                                </Tippy>
-                            ) : (
-                                <Tippy
-                                    content={"Gửi (Enter)"}
-                                    placement="top"
-                                    delay={[300, 0]}
-                                    interactive={true}
-                                >
-                                    <div 
-                                        className={cx("icon")} 
-                                        onClick={() => handleSendMessage(inputRef.current?.textContent || "")}
-                                        style={{ cursor: isSending ? "not-allowed" : "pointer", opacity: isSending ? 0.6 : 1 }}
-                                        disabled={isSending}
-                                    >
-                                        {isSending ? <Loader className={cx("spinner")} /> : <SendHorizontal />}
-                                    </div>
-                                </Tippy>
-                            )}
-                        </div>
+                                    {isSending ? <Loader className={cx("spinner")} /> : <SendHorizontal />}
+                                </div>
+                            </Tippy>
+                        )}
                     </div>
                 </div>
+            </div>
         </div>
     );
 }

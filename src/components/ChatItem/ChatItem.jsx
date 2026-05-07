@@ -7,6 +7,10 @@ import Image from "../Image/index.jsx";
 import { BellOff } from "lucide-react";
 const cx = classNames.bind(styles);
 
+// Constant cho AI Chat
+const AI_UID = "hSVzmwx9FEQfbY0L5TxbCXbti3W2";
+const AI_NAME = "AI Giải Đáp";
+
 function ChatItem({ className, id, images, user, content, time, check = false, bell = false, imageSub = "", senderName = "", onClick, active }) {
 
     const timeRef = useRef(null);
@@ -14,7 +18,7 @@ function ChatItem({ className, id, images, user, content, time, check = false, b
     const location = useLocation();
     const params = useParams();
     const validImages = images.filter(Boolean).slice(0, 2);
-    const previewName = senderName || user;
+    const previewName = senderName === AI_UID ? AI_NAME : (senderName || user);
 
     useEffect(() => {
         function handleTime() {
